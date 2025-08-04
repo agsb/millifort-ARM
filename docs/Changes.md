@@ -20,18 +20,18 @@ the dictionary does use of DJB2 hash instead size+names and the flag IMMEDIATE i
 
 Hash values for primitives included:
 
-.equ hash_key, 0B876D32 
-.equ hash_emit, 7C6B87D0 
-.equ hash_store, 0002B584 
-.equ hash_fetch, 0002B5E5 
-.equ hash_add, 0002B58E 
-.equ hash_colon, 0002B59F 
-.equ hash_semis, 8002B59E   # with FLAG_IMMEDIATE 
-.equ hash_nand, 7C727500 
-.equ hash_exit, 7C6BBE85 
-.equ hash_bye, 0B874AFB 
-.equ hash_notequal, 00596816 
-.equ hash_userat, 005970D6 
+    .equ hash_key, 0B876D32 
+    .equ hash_emit, 7C6B87D0 
+    .equ hash_store, 0002B584 
+    .equ hash_fetch, 0002B5E5 
+    .equ hash_add, 0002B58E 
+    .equ hash_colon, 0002B59F 
+    .equ hash_semis, 8002B59E   # with FLAG_IMMEDIATE 
+    .equ hash_nand, 7C727500 
+    .equ hash_exit, 7C6BBE85 
+    .equ hash_bye, 0B874AFB 
+    .equ hash_notequal, 00596816 
+    .equ hash_userat, 005970D6 
 
 Default GCCFLAGS = -nostartfiles -nodefaultlibs -march=rv32ic -mabi=ilp32 -static -Os
 
