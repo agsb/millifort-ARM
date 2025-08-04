@@ -12,24 +12,17 @@
 
 # default
 BASE = /usr/bin
-NAME = riscv64-unknown-elf-
-
-# or optional compiled
-PASS = /opt/riscv/
-
-ifneq ("$(wildcard $(PASS))", "")
-	BASE = /opt/riscv/bin/
-	NAME = riscv32-unknown-linux-gnu-
-endif
+NAME = arm-none-eabi-
 
 PASS = ${BASE}/${NAME}
 
 GCC = ${PASS}gcc
 
 GCCFLAGS = -nostartfiles -nodefaultlibs \
-	   -march=rv32ic -mabi=ilp32 \
+	   -mcpu=arm8 -mlittle-endian \
 	   -static -Os \
-	   
+
+# -march=rv32ic -mabi=ilp32 \
 # -fpic -fpie
 # -fomit-frame-pointer \
 
@@ -55,7 +48,7 @@ QEMU = ${BASE}qemu-riscv32
 QFLAGS = -nographic -smp 1 -machine virt -bios none
 
 MY = minimal
-MY = sector-riscv
+MY = sector-arm
 
 ########################################
 

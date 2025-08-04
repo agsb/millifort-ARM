@@ -1,0 +1,45 @@
+
+minimal.elf:     file format elf32-littlearm
+minimal.elf
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .text         0000004c  00008000  00008000  00001000  2**2
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  1 .persistent   00000000  0000904c  0000904c  0000104c  2**2
+                  CONTENTS, ALLOC, LOAD, DATA
+  2 .bss          00000020  0000904c  0000904c  0000104c  2**0
+                  ALLOC
+  3 .noinit       00000000  0000906c  0000906c  00000000  2**2
+                  ALLOC
+  4 .ARM.attributes 00000017  00000000  00000000  0000104c  2**0
+                  CONTENTS, READONLY
+
+Disassembly of section .text:
+
+00008000 <_start>:
+    8000:	e3a00000 	mov	r0, #0
+    8004:	e3a0705d 	mov	r7, #93	@ 0x5d
+    8008:	ef000000 	svc	0x00000000
+
+0000800c <_init>:
+    800c:	e1a0f00e 	mov	pc, lr
+
+00008010 <_getc>:
+    8010:	e3a00000 	mov	r0, #0
+    8014:	e59f102c 	ldr	r1, [pc, #44]	@ 8048 <_putc+0x1c>
+    8018:	e3a02001 	mov	r2, #1
+    801c:	e3a0703f 	mov	r7, #63	@ 0x3f
+    8020:	ef000000 	svc	0x00000000
+    8024:	e5913000 	ldr	r3, [r1]
+    8028:	e1a0f00e 	mov	pc, lr
+
+0000802c <_putc>:
+    802c:	e5813000 	str	r3, [r1]
+    8030:	e3a00001 	mov	r0, #1
+    8034:	e59f100c 	ldr	r1, [pc, #12]	@ 8048 <_putc+0x1c>
+    8038:	e3a02001 	mov	r2, #1
+    803c:	e3a07040 	mov	r7, #64	@ 0x40
+    8040:	ef000000 	svc	0x00000000
+    8044:	e1a0f00e 	mov	pc, lr
+    8048:	0000904c 	.word	0x0000904c

@@ -8,11 +8,15 @@
  minimal elf with exit code
 */
 
+#define ecall   svc #0   
+#define call    bl   
+#define ret     bx lr
 
 #---------------------------------------------------------------------
-# linux ecall stuff, 29/07/2025, vide:
+# linux svc #0 stuff, 29/07/2025, vide:
 # https://github.com/riscv-software-src/riscv-pk/blob/master/pk/syscall.h
 
+.equ ONE,       1
 .equ STDIN,     0
 .equ STDOUT,    1
 .equ GETC,     63
@@ -37,49 +41,48 @@ _start:
 
 # load system call for exit
 _exit:
-        addi a0, zero, STDIN
-        addi a7, zero, EXIT
+        mov r0,  #STDIN
+        mov r7,  #EXIT
         ecall
 
 # load system call for init
 _init:
         ret
 
-# linux ecall for getc
+# linux svc #0 for getc
 _getc:
-        addi a0, zero, STDIN
-        la a1, _pad
-        addi a2, zero, 1
-        addi a7, zero, GETC
+        mov r0,  #STDIN
+        ldr r1, =_pad
+        mov r2,  #ONE
+        mov r7,  #GETC
         ecall
-        lw a3, 0 (a1)
+        ldr r3, [r1]
         ret
 
-# linux ecall for putc
+# linux svc #0 for putc
 _putc:
-        sw a3, 0 (a1)
-        addi a0, zero, STDOUT
-        la a1, _pad
-        addi a2, zero, 1
-        addi a7, zero, PUTC
+        str r3, [r1]
+        mov r0,  #STDOUT
+        ldr r1, =_pad
+        mov r2,  #ONE
+        mov r7,  #PUTC
         ecall
         ret
 
 # just not necessary
 
 .if 0
-# linux ecall for puts
+# linux svc #0 for puts
 _puts:
         # pointer to msg
-        add a1, t3, zero
+        add r1, t3, zero
         # lenght of msg
-        add a2, t4, zero
+        add r2, t4, zero
 
-        addi a0, zero, STDOUT
-        addi a7, zero, PUTC
+        mov r0,  #STDOUT
+        mov r7,  #PUTC
         ecall
         j _init
-        ret
 .endif
 
 
