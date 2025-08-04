@@ -2,6 +2,18 @@
 
 *STILL A BUNCH (NOT ORGANIZED) OF IDEAS*
 
+## ARM7
+
+    A ARM7 CPU have 16 32-bits registers, R13 is the stack pointer, R14 is the link pointer, R15 is the program pointer, and a CPSR condition register;
+    
+    A native cell is 32-bits and instrucions have one or two cells, using 3 or 2 operands;
+
+    The linux raspberry uses EABI syscalls.
+    
+    
+    
+## MillliForth
+
     Sectorforth and Milliforth was made for x86 and Z80 arch 
     and uses full 16-bit registers. 
  
