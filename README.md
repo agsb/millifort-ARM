@@ -3,7 +3,7 @@
 *"To master riding bicycles you have do ride bicycles"*
 
 started at 04/08/2025, agsb@
-vide [Changes](https://github.com/agsb/milliForth-RiscV/blob/main/docs/Changes.md) and [Notes](https://github.com/agsb/milliForth-RiscV/blob/main/docs/Notes.md)
+vide [Changes](https://github.com/agsb/millifort-ARM/blob/main/docs/Changes.md) and [Notes](https://github.com/agsb/millifort-ARM/blob/main/docs/Notes.md)
 
     _STILL a STUB_
 
