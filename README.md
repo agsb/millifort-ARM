@@ -31,6 +31,8 @@ Options:
 
 the ARM is a 4 bytes (32-bit) cell CPU with 32-bit [ISA](https://developer.arm.com/documentation/den0013/d/Introduction-to-Assembly-Language/The-ARM-instruction-sets)
 
+[ARM7 ISA, 2720 pages](https://developer.arm.com/documentation/ddi0406/latest/)
+[ARM8 ISA, 39 pages](https://developer.arm.com/-/media/Arm%2520Developer%2520Community/PDF/Learn%2520the%2520Architecture/Armv8-A%2520Instruction%2520Set%2520Architecture.pdf)
 The milliForth is a program called by 'elsewhere alien operational system', and use registers ????. 
 
 ## Coding
