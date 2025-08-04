@@ -1,4 +1,4 @@
-# milliForth-RiscV
+# milliForth-ARM
 
 *"To master riding bicycles you have do ride bicycles"*
 
@@ -29,18 +29,15 @@ Options:
     
 ## ISA
 
-the ARM is a 4 bytes (32-bit) cell CPU with 32-bit 
-[ISA](https://www.cl.cam.ac.uk/teaching/1617/ECAD+Arch/files/docs/RISCVGreenCardv8-20151013.pdf) or [ISA](https://dejazzer.com/coen2710/lectures/RISC-V-Reference-Data-Green-Card.pdf)
+the ARM is a 4 bytes (32-bit) cell CPU with 32-bit [ISA](https://developer.arm.com/documentation/den0013/d/Introduction-to-Assembly-Language/The-ARM-instruction-sets)
 
-The milliForth is a program called by 'elsewhere alien operational system', and use registers zzzz. 
+The milliForth is a program called by 'elsewhere alien operational system', and use registers ????. 
 
 ## Coding
 
-*"qemu -kernel loads the kernel at 0x80000000 and causes each hart (i.e. core of CPU) to jump there."*
+For assembler, use gcc style with pre-processor directives eg. #define.
 
-For assembler, use [standart Risc-V](https://github.com/riscv-non-isa/riscv-asm-manual) style with pre-processor directives eg. #define.
-
-For now, using riscv-unknown-elf-gcc 15.0 suit with spike and qemu emulators for a single core minimal footprint Forth thread.  
+For now, using linux system in a Raspberry PI and gcc suit for a single core minimal footprint Forth thread.  
 
 I hope it uses far less than 4k bytes, without a user dictionary.
 
@@ -134,3 +131,4 @@ the my_hello_world.FORTH is adapted for miiliforth-6502
 [^7]: A minimal thread code for Forth: https://github.com/agsb/immu/blob/main/The_words_in_MTC_Forth.en.pdf
 
 
+:
