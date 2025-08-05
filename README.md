@@ -33,6 +33,9 @@ the ARM is a 4 bytes (32-bit) cell CPU with 32-bit ISA in version ARMv7 and a 64
 
 Focus in Raspberry PI 3 B, Cortex-A53, ARMv8, but using 32-bit ISA.
 
+
+[Easy](https://developer.arm.com/-/media/Arm-Developer-Community/PDF/Learn-the-Architecture/Armv8-A-Instruction-Set-Architecture.pdf)
+
 [Assembler](https://developer.arm.com/documentation/den0013/d/Introduction-to-Assembly-Language/The-ARM-instruction-sets)
 
 [ARM7 ISA, 2,720 pages](https://developer.arm.com/documentation/ddi0406/latest/)
