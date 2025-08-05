@@ -311,7 +311,7 @@ reset:
         
         ldr idx, _tib
         
-        str zero, [idx, #0]
+        str wzr, [idx, #0]
 
 #---------------------------------------------------------------------
 abort:
@@ -333,7 +333,7 @@ quit:
 
 # stat is 'interpret' == \0
         
-        str zero, STAT (usr)
+        str wzr, STAT (usr)
 
         j okey
 
@@ -369,7 +369,7 @@ tick:
 100:
 # verify end of dictionary, abort (could be number?)
         
-        beq lnk, zero, abort
+        beq lnk, wzr, abort
 
 # linked list
         
@@ -415,13 +415,13 @@ tick:
 eval:
 # immediate ? if i!= 0
 
-        bne snd, zero, immediate      
+        bne snd, wzr, immediate      
 
 # executing ? if == \0
         
         lb fst, STAT+0 (usr)
         
-        beq fst, zero, execute
+        beq fst, wzr, execute
 
 #---------------------------------------------------------------------         
 compile:
@@ -449,7 +449,7 @@ getline:
 
 # end-of-line is newline
         
-        addi snd, zero, NLC
+        addi snd, wzr, NLC
 
 # ever start with a space
         
@@ -479,7 +479,7 @@ getline:
 
 # mark eol with \0
 
-        str zero, 1 (idx)
+        str wzr, 1 (idx)
 
         # falltrought
 
@@ -499,7 +499,7 @@ token:
 100:
         lb fst, 0 (idx)
 
-        beq fst, zero, getline
+        beq fst, wzr, getline
         
         addi idx, idx, ONE
         
@@ -552,14 +552,14 @@ mask:
 # hsh returns the hash 
 djb2:
         # easy 3581
-        addi hsh, zero, 2000
+        addi hsh, wzr, 2000
 
         addi hsh, hsh,  1581
 
 100:
         lb fst, 0 (idx)
         
-        # beq fst, zero, 100f
+        # beq fst, wzr, 100f
         
         beq fst, trd, 100f
         
@@ -715,11 +715,11 @@ def_word "0#", "zeroq", h_plus, hash_notzero
 
 isfalse:
 
-        beq snd, zero, next
+        beq snd, wzr, next
 
 istrue:
         
-        addi fst, zero, TRUE
+        addi fst, wzr, TRUE
         
         j save0
 
@@ -753,7 +753,7 @@ def_word ":", "colon", h_state, hash_colon
 
 # stat is 'compile' == 1
         
-        addi fst, zero, ONE
+        addi fst, wzr, ONE
         
         str fst, STAT (usr)
 
@@ -791,7 +791,7 @@ def_word ";", "semis",  h_colon, hash_semis
 
 # stat is 'interpret' == 0
         
-        str zero, STAT (usr)
+        str wzr, STAT (usr)
 
 # compound words must ends with exit
         
@@ -858,7 +858,7 @@ move:
 jump: 
 # jump to primitive
         
-        jalr zero,[wrd, #0]
+        jalr wzr,[wrd, #0]
 
 #----------------------------------------------------------------------
 # system dependences, linux ecall

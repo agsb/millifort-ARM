@@ -19,7 +19,7 @@ PASS = ${BASE}/${NAME}
 GCC = ${PASS}gcc
 
 GCCFLAGS = -nostartfiles -nodefaultlibs \
-	   -mcpu=arm8 -mlittle-endian \
+	   -mcpu=arm7tdmi -mlittle-endian \
 	   -static -Os \
 
 # -march=rv32ic -mabi=ilp32 \

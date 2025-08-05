@@ -29,13 +29,15 @@ Options:
     
 ## ISA
 
-the ARM is a 4 bytes (32-bit) cell CPU with 32-bit ISA in version ARM7 and a 64-bit ISA in version ARM8.
+the ARM is a 4 bytes (32-bit) cell CPU with 32-bit ISA in version ARMv7 and a 64-bit ISA in version ARMv8.
+
+Focus in Raspberry PI 3 B, Cortex-A53, ARMv8, but using 32-bit ISA.
 
 [Assembler](https://developer.arm.com/documentation/den0013/d/Introduction-to-Assembly-Language/The-ARM-instruction-sets)
 
-[ARM7 ISA, 2720 pages](https://developer.arm.com/documentation/ddi0406/latest/)
+[ARM7 ISA, 2,720 pages](https://developer.arm.com/documentation/ddi0406/latest/)
 
-[ARM8 ISA, 39 pages](https://developer.arm.com/documentation/ddi0487/latest/)
+[ARM8 ISA, 14,734 pages](https://developer.arm.com/documentation/ddi0487/latest/)
 
 The milliForth is a program called by 'elsewhere alien operational system', and use registers ????. 
 
