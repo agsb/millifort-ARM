@@ -45,6 +45,7 @@ QEMU = ${BASE}qemu-riscv32
 QFLAGS = -nographic -smp 1 -machine virt -bios none
 
 MY = sector-arm
+MY = helloworld
 MY = minimal
 
 ########################################
