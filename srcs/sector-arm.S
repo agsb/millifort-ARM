@@ -150,43 +150,42 @@ h_\label:
 
 
 #---------------------------------------------------------------------
-#define ecall   svc #0   
-#define call    bl   
-#define ret     bx lr
 
 #---------------------------------------------------------------------
 # using pre-processor CPP (GNU GCC)
 # for alias register names 
+# w0, w1, w2, w7 also used in ecall 
 
 # forth struct pointer, constant 
-#define usr r0
+#define usr w3
 
 # instruction pointer, preserved
-#define ipt r1
+#define ipt w4
 
 # memory index 
-#define idx r2
+#define idx w5
 
 # hash value
-#define hsh r3
+#define hsh w0
 
 # link pointer
-#define lnk r4
+#define lnk w1
 
 # word pointer
-#define wrd r5
+#define wrd w2
 
 # generic
-#define fst r6
+#define fst w6
 
 # generic
-#define snd r7
+#define snd w7
+
+# keep ra, return addres
+#define fth w6 
 
 # keep ascii space,
 #define trd a5
 
-# keep ra, return addres
-#define fth a6 
 
 #----------------------------------------------------------------------
 #.section .data

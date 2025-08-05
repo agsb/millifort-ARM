@@ -19,17 +19,13 @@ PASS = ${BASE}/${NAME}
 GCC = ${PASS}gcc
 
 GCCFLAGS = -nostartfiles -nodefaultlibs \
-	   -mcpu=cortex-a53 -mlittle-endian \
+	   -mcpu=arm8 -mlittle-endian \
 	   -static -Os \
 
-# -mcpu=arm8 
+# -mcpu=cortex-a53 
 # -march=rv32ic -mabi=ilp32 \
 # -fpic -fpie
 # -fomit-frame-pointer \
-
-
-# -march=rv64ic -mabi=lp64 -static -Oz \
-# -march=rv32ic -mabi=ilp32 -static -Oz \
 
 LDFLAGS = -Wl,--stats
 
@@ -48,8 +44,8 @@ QEMU = ${BASE}qemu-riscv32
 
 QFLAGS = -nographic -smp 1 -machine virt -bios none
 
-MY = minimal
 MY = sector-arm
+MY = minimal
 
 ########################################
 

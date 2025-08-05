@@ -41,8 +41,8 @@ _start:
 
 # load system call for exit
 _exit:
-        mov w0,  #STDIN
-        mov w7,  #EXIT
+        mov r0,  #STDIN
+        mov r7,  #EXIT
         ecall
 
 # load system call for init
@@ -51,21 +51,21 @@ _init:
 
 # linux svc #0 for getc
 _getc:
-        mov w0,  #STDIN
-        ldr w1, =_pad
-        mov w2,  #ONE
-        mov w7,  #GETC
+        mov r0,  #STDIN
+        ldr r1, =_pad
+        mov r2,  #ONE
+        mov r7,  #GETC
         ecall
-        ldr w3, [w1]
+        ldr r3, [r1]
         ret
 
 # linux svc #0 for putc
 _putc:
-        str w3, [w1]
-        mov w0,  #STDOUT
-        ldr w1, =_pad
-        mov w2,  #ONE
-        mov w7,  #PUTC
+        str r3, [r1]
+        mov r0,  #STDOUT
+        ldr r1, =_pad
+        mov r2,  #ONE
+        mov r7,  #PUTC
         ecall
         ret
 
@@ -75,12 +75,12 @@ _putc:
 # linux svc #0 for puts
 _puts:
         # pointer to msg
-        add w1, t3, zero
+        add r1, t3, zero
         # lenght of msg
-        add w2, t4, zero
+        add r2, t4, zero
 
-        mov w0,  #STDOUT
-        mov w7,  #PUTC
+        mov r0,  #STDOUT
+        mov r7,  #PUTC
         ecall
         j _init
 .endif

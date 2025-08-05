@@ -1,6 +1,0 @@
-#define ecall   svc #0   
-#define call    bl   
-#define ret     bx lr
-
-#---------------------------------------------------------------------
-# linux svc #0 stuff, 29/07/2025, vide:
