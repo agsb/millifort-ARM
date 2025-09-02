@@ -17,6 +17,15 @@ NAME = arm-linux-gnueabi-
 # on linux ?
 NAME = arm-none-eabi-
 
+# using local ?
+# or optional compiled
+# PASS = /opt/riscv/
+
+#ifneq ("$(wildcard $(PASS))", "")
+#	BASE = /opt/riscv/bin/
+#	NAME = riscv32-unknown-linux-gnu-
+#endif
+
 PASS = ${BASE}${NAME}
 
 GCC = ${PASS}gcc
@@ -43,12 +52,11 @@ QEMU = ${BASE}qemu-riscv64
 
 #QFLAGS = -nographic -smp 1 -machine virt -bios none
 
+MY = sector-armv
 
 MY = test
 
 MY = minimal
-
-MY = sector-armv6
 
 ########################################
 

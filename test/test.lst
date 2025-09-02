@@ -1,0 +1,55 @@
+ARM GAS  /tmp/ccnQTJKj.s 			page 1
+
+
+   1              	# 0 "test.S"
+   2              	# 0 "<built-in>"
+   3              	# 0 "<command-line>"
+   4              	# 1 "test.S"
+   5              	# 61 "test.S"
+   6              	#---------------------------------------------------------------------
+   7              	# linux ecall stuff, 29/07/2025, vide:
+   8              	# https:
+   9              	
+  10              	.equ _ZERO, 0
+  11              	.equ _ONE, 1
+  12              	.equ _STDIN, 0
+  13              	.equ _STDOUT, 1
+  14              	.equ _GETC, 63
+  15              	.equ _PUTC, 64
+  16              	.equ _EXIT, 93
+  17              	
+  18              	#---------------------------------------------------------------------
+  19              	.section .bss
+  20              	_char:
+  21 0000 00000000 	.word 0x0
+  22              	
+  23              	
+  24              	
+  25              	
+  26              	
+  27              	
+  28              	#---------------------------------------------------------------------
+  29              	.section .text
+  30              	
+  31              	_start:
+  32 0000 0000A0E3 	        mov r0, #0
+  33 0004 5D80A0E3 	        mov r8, #93
+  34 0008 000000EF 	        svc #0
+  35              	
+  36              	.end
+ARM GAS  /tmp/ccnQTJKj.s 			page 2
+
+
+DEFINED SYMBOLS
+     /tmp/ccnQTJKj.s:10     *ABS*:00000000 _ZERO
+     /tmp/ccnQTJKj.s:11     *ABS*:00000001 _ONE
+     /tmp/ccnQTJKj.s:12     *ABS*:00000000 _STDIN
+     /tmp/ccnQTJKj.s:13     *ABS*:00000001 _STDOUT
+     /tmp/ccnQTJKj.s:14     *ABS*:0000003f _GETC
+     /tmp/ccnQTJKj.s:15     *ABS*:00000040 _PUTC
+     /tmp/ccnQTJKj.s:16     *ABS*:0000005d _EXIT
+     /tmp/ccnQTJKj.s:20     .bss:00000000 _char
+     /tmp/ccnQTJKj.s:31     .text:00000000 _start
+     /tmp/ccnQTJKj.s:32     .text:00000000 $a
+
+NO UNDEFINED SYMBOLS

@@ -1,0 +1,101 @@
+ARM GAS  /tmp/ccaiHdIT.s 			page 1
+
+
+   1              	# 0 "minimal.S"
+   2              	# 0 "<built-in>"
+   3              	# 0 "<command-line>"
+   4              	# 1 "minimal.S"
+   5              	# 58 "minimal.S"
+   6              	#---------------------------------------------------------------------
+   7              	# linux ecall stuff, 29/07/2025, vide:
+   8              	# https:
+   9              	
+  10              	.equ _ZERO, 0
+  11              	.equ _ONE, 1
+  12              	.equ _STDIN, 0
+  13              	.equ _STDOUT, 1
+  14              	.equ _GETC, 63
+  15              	.equ _PUTC, 64
+  16              	.equ _EXIT, 93
+  17              	
+  18              	#---------------------------------------------------------------------
+  19              	.section .bss
+  20              	_char:
+  21 ???? 00000000 	.word 0x0
+  22              	
+  23              	#---------------------------------------------------------------------
+  24              	.section .text
+  25              	
+  26              	# linux ecall for exit
+  27              	_exit:
+  28 ???? 08001FE5 	        ldr r0, _ZERO
+  29 ???? 08801FE5 	        ldr r8, _EXIT
+  30 ???? 000000EF 	        svc #0
+  31              	
+  32              	# load system call for init
+  33              	_init:
+  34 ???? 1EFF2FE1 	        bx lr
+  35              	
+  36              	# linux ecall for getc
+  37              	_getc:
+  38 ???? 08001FE5 	        ldr r0, _STDIN
+  39 ???? 00108FE2 	        adr r1, _char
+  40 ???? 08201FE5 	        ldr r2, _ONE
+  41 ???? 08801FE5 	        ldr r8, _GETC
+  42 ???? 000000EF 	        svc #0
+  43              	        #EOF?
+  44 ???? 000050E3 	        cmp r0, #0
+  45 ???? F4FFFF0A 	        beq _exit
+  46 ???? 08305FE5 	        ldrb r3, (a0)
+  47 ???? 1EFF2FE1 	        bx lr
+  48              	
+  49              	# linux ecall for putc
+  50              	_putc:
+  51 ???? 08001FE5 	        ldr r0, _STDOUT
+  52 ???? 00108FE2 	        adr r1, _char
+  53 ???? 08201FE5 	        ldr r2, _ONE
+  54 ???? 08801FE5 	        ldr r8, _PUTC
+  55 ???? 08304FE5 	        strb r3, (x0)
+  56 ???? 000000EF 	        svc #0
+  57 ???? 1EFF2FE1 	        bx lr
+ARM GAS  /tmp/ccaiHdIT.s 			page 2
+
+
+  58              	
+  59              	#---------------------------------------------------------------------
+  60              	
+  61              	.equ CELL, 4
+  62              	    #ldr idx, RPTR (usr)
+  63              	
+  64 ???? 043053E2 	    adds r3, #-1*CELL
+  65              	
+  66              	    #str ipt, 0 (idx)
+  67              	
+  68              	    #str idx, RPTR (usr)
+ARM GAS  /tmp/ccaiHdIT.s 			page 3
+
+
+DEFINED SYMBOLS
+     /tmp/ccaiHdIT.s:10     *ABS*:00000000 _ZERO
+     /tmp/ccaiHdIT.s:11     *ABS*:00000001 _ONE
+     /tmp/ccaiHdIT.s:12     *ABS*:00000000 _STDIN
+     /tmp/ccaiHdIT.s:13     *ABS*:00000001 _STDOUT
+     /tmp/ccaiHdIT.s:14     *ABS*:0000003f _GETC
+     /tmp/ccaiHdIT.s:15     *ABS*:00000040 _PUTC
+     /tmp/ccaiHdIT.s:16     *ABS*:0000005d _EXIT
+     /tmp/ccaiHdIT.s:20     .bss:00000000 _char
+     /tmp/ccaiHdIT.s:27     .text:00000000 _exit
+     /tmp/ccaiHdIT.s:28     .text:00000000 $a
+                            *ABS*:00000000 *ABS*0x0
+                            *ABS*:0000005d *ABS*0x5d
+     /tmp/ccaiHdIT.s:33     .text:0000000c _init
+     /tmp/ccaiHdIT.s:37     .text:00000010 _getc
+                            *ABS*:00000001 *ABS*0x1
+                            *ABS*:0000003f *ABS*0x3f
+     /tmp/ccaiHdIT.s:50     .text:00000034 _putc
+                            *ABS*:00000040 *ABS*0x40
+     /tmp/ccaiHdIT.s:61     *ABS*:00000004 CELL
+
+UNDEFINED SYMBOLS
+a0
+x0

@@ -34,24 +34,27 @@
 
  Note: 
  on arm64, armv8 linux syscalls use:
-        syscal nr in X8, return X0, and parameters 
-        X0 file descriptor
-        X1 char * buffer
-        X2 count
-        X8 read (63) or write (64)
-        
-        Use for Cortex-M0, Armv6-M, RP2040 is little-endian
+ syscal nr in X8, return X0, parameters 
+       X0 file descriptor
+       X1 char * buffer
+       X2 count
+       X8 read (63) or write (64)
 
-        R0-R12, generic use
-        
-        R13, SP stack pointer
-        R14, LR link register
-        R15, PC program pointer
-        
-        PSR, Program Status Register, 
-             bits 31 N, 30 Z, 29 C, 28 V
+        from aapcs64.pdf:
 
-        For milliforth is using r0-r6, r10, r11
+        SP,     stack pointer
+        r30,    LR, linker register
+        r29,    FP, frame pointer
+
+        r19-r28, callee-saved registers
+        r18, plataform or temporary
+        r17, IP1
+        r16, IP0
+        r9-r15, temporary registers
+        r8, indirect result register
+        r0-r7, parameters and results registers
+
+        for milliforth is using r0-r6, r10, r11
 
 */
 
@@ -72,49 +75,53 @@
 _char:
 .word   0x0
 
+/*
+        linux syscalls uses x0 to x5
+        
+
+*/
 #---------------------------------------------------------------------
 .section .text
 
-# linux ecall for exit
+_start:
+        mov r0, #0
+        mov r8, #93
+        svc #0
+
+.end
+# load system call for exit
 _exit:
         ldr r0, _ZERO
         ldr r8, _EXIT
         svc #0
 
 # load system call for init
+# pass system parameters to program 
 _init:
-        bx lr
+        ret
 
 # linux ecall for getc
 _getc:
         ldr r0, _STDIN
-        adr r1, _char
+        la  r1, _char
         ldr r2, _ONE
         ldr r8, _GETC
         svc #0
+        ldb r3, (a0)
+        
         #EOF?
-        cmp r0, #0
-        beq _exit
-        ldrb r3, (a0)
-        bx lr
+        beq r0, _exit
+
+        ret
 
 # linux ecall for putc
 _putc:
         ldr r0, _STDOUT
-        adr r1, _char
+        la  r1, _char
         ldr r2, _ONE
         ldr r8, _PUTC
-        strb r3, (x0)
+        sdb r3, (x0)
         svc #0
-        bx lr
+        ret
 
 #---------------------------------------------------------------------
-
-.equ CELL, 4
-    #ldr idx, RPTR (usr)
-       
-    adds r3, #-1*CELL
-
-    #str ipt, 0 (idx)
-
-    #str idx, RPTR (usr)
