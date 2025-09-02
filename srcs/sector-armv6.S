@@ -69,11 +69,14 @@
 
 .equ CELL, 4
 
-.equ NL, 10    # \n
+# \n
+.equ NL, 10    
 
-.equ CR, 13    # \r
+# \r
+.equ CR, 13    
 
-.equ BL, 32    # space
+# space
+.equ BL, 32    
 
 # data stack, 36 cells 
 
@@ -101,6 +104,8 @@
 
 #---------------------------------------------------------------------
 # primitives djb2 hash cleared of bit 31
+# semis is the unique with FLAG_IMM 
+
 .equ hash_key,   0x0B876D32 
 .equ hash_emit,  0x7C6B87D0 
 .equ hash_store, 0x0002B584 
@@ -110,7 +115,7 @@
 .equ hash_notzero, 0x00596816 
 .equ hash_userat, 0x00596F90
 .equ hash_colon, 0x0002B59F 
-.equ hash_semis, 0x8002B59E # unique with FLAG_IMM 
+.equ hash_semis, 0x8002B59E 
 .equ hash_exit,  0x7C6BBE85 
 
 #---------------------------------------------------------------------
@@ -251,26 +256,26 @@ main:
 cold:
 # load user pointer address
 
-        adr usr, #_user
+        ldr usr, =_user
         
 #----------------------------------------------------------------------
 # wipe the dictionary
 warm:
 # link list of headers, aka dictionary
 
-        adr fst, h_last
+        ldr fst, =h_last
         str fst, [usr, #LAST]
         
 # next heap free cell  (end of .bss)
         
-        adr fst, h_here
+        ldr fst, =h_here
         str fst, [usr, #HERE]
 
 #---------------------------------------------------------------------
 # reset TIB
 reset:
 
-        adr fst, _tib
+        ldr fst, =_tib
         str fst, [usr, #TOIN]
 
 #---------------------------------------------------------------------
@@ -287,19 +292,20 @@ error:
 abort:
 # reset data stack
         
-        adr fst, sp0 
+        ldr fst, =sp0 
         str fst, [usr, #SPTR]
 
 #---------------------------------------------------------------------
 quit:
 # reset return stack
         
-        adr fst, rp0 
+        ldr fst, =rp0 
         str fst, [usr, #RPTR]
 
 # stat is 'interpret' == \0
         
-        str #0, [usr, #STAT]
+        ldr fst, #0
+        str fst, [usr, #STAT]
 
         b okey
 
@@ -403,7 +409,7 @@ compile:
 execute:
 immediate:
 
-        adr ipt, resolvept
+        ldr ipt, =resolvept
 
         b pick
 
@@ -445,7 +451,7 @@ token:
 # skip spaces // trd
 200:
 
-        lb snd, [idx]
+        ldrb snd, [idx]
 
         cmp snd, #0
         beq gets
@@ -462,7 +468,7 @@ token:
 #
 gets:
   
-        adr idx, _tib
+        ldr idx, =_tib
         
         str idx, [usr, #TOIN]
 
@@ -473,7 +479,7 @@ gets:
 # loop and fill the TIB until \n
 # no test end of buffer 
 300:
-        sb fst, [idx]
+        strb fst, [idx]
         
         adds idx, #ONE
 
@@ -487,7 +493,7 @@ gets:
 
 # 7-bit ascii only 
 # xxx
-        andi fst, #127
+        and fst, fst, #127
 
 # \n ^J ends the line
 
@@ -498,10 +504,12 @@ gets:
 400:
 
 # replace \n with space 
-        strb trd, [idx]
+        ldr fst, #BL
+        strb fst, [idx]
 
 # mark eol with \0
-        strb #0, [idx]
+        ldr fst, #0
+        strb fst, [idx]
 
         b 100b
 
@@ -523,14 +531,14 @@ djb2:
         ldr hsh, #DJB2
 
 100:
-        lb fst, [idx]
+        ldrb fst, [idx]
         
         cmp fst, #BL
         beq 100f
 
         mov snd, hsh
 
-        slli hsh, hsh, SFHT
+        lsl hsh, hsh, #SFHT
         
         add hsh, snd
         
@@ -649,7 +657,7 @@ def_word "nand", "nand", h_fetch, hash_nand
 
         and fst, snd
         
-        not fst, fst
+        neg fst, fst
 
         b keep1
 
@@ -746,11 +754,12 @@ def_word ";", "semis",  h_colon, hash_semis
 
 # stat is 'interpret' == 0
         
-        str #0, [usr, #STAT]
+        ldr fst, #0
+        str fst, [usr, #STAT]
 
 # compound words must ends with exit
         
-        adr wrd, exit
+        ldr wrd, =exit
 
         b finish
 
@@ -786,7 +795,7 @@ next:
 pick:
 # compare address, if is a primitive then jumps 
         
-        adr idx, ends
+        ldr idx, =ends
         
         cmp wrd, idx
 

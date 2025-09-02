@@ -88,7 +88,7 @@ _init:
 # linux ecall for getc
 _getc:
         ldr r0, _STDIN
-        adr r1, _char
+        ldr r1, =_char
         ldr r2, _ONE
         ldr r8, _GETC
         svc #0
@@ -101,7 +101,7 @@ _getc:
 # linux ecall for putc
 _putc:
         ldr r0, _STDOUT
-        adr r1, _char
+        ldr r1, =_char
         ldr r2, _ONE
         ldr r8, _PUTC
         strb r3, (x0)

@@ -5,10 +5,10 @@
 # a0, a1, a2, a7 are used by ecalls
 
 # forth struct pointer, constant 
-#define usr r10
+#define usr r7
 
 # instruction pointer, preserved
-#define ipt r11
+#define ipt r6
 
 # memory index 
 #define idx r0
@@ -19,7 +19,7 @@
 # link pointer
 #define lnk r2
 
-# rord pointer
+# word pointer
 #define wrd r3
 
 # generic
@@ -27,7 +27,4 @@
 
 # generic
 #define snd r5
-
-# generic
-#define trd r6
 
