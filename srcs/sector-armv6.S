@@ -249,9 +249,10 @@ init:
 
         # fence
 
-        # bl _init
+        bl _init
 
-        # bl _exit 
+        ldr snd, =h_here
+        str fst, [snd]
 
 #----------------------------------------------------------------------
 # do what need be only once
@@ -263,16 +264,18 @@ cold:
 #----------------------------------------------------------------------
 # wipe the dictionary
 warm:
+# next heap free cell  (end of .bss)
+        
+        ldr snd, =h_here
+        ldr fst, [snd]
+
+        str fst, [usr, #HERE]
+
 # link list of headers, aka dictionary
 
         ldr fst, =h_last
         str fst, [usr, #LAST]
         
-# next heap free cell  (end of .bss)
-        
-        ldr fst, =h_here
-        str fst, [usr, #HERE]
-
 #---------------------------------------------------------------------
 # reset TIB
 reset:

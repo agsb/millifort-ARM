@@ -33,13 +33,6 @@
 #---------------------------------------------------------------------
 
  Note: 
- on arm64, armv8 linux syscalls use:
-        syscal nr in X8, return X0, and parameters 
-        X0 file descriptor
-        X1 char * buffer
-        X2 count
-        X8 read (63) or write (64)
-        
         Use for Cortex-M0, Armv6-M, RP2040 is little-endian
 
         R0-R12, generic use
@@ -50,6 +43,9 @@
         
         PSR, Program Status Register, 
              bits 31 N, 30 Z, 29 C, 28 V
+
+        syscall (aka ecalls) ARM/EABI uses 
+        R7 _NR, R0-R6 parameters, R0 return value
 
         For milliforth is using r0-r6, r10, r11
 
@@ -63,6 +59,8 @@
 .equ _ONE,       1
 .equ _STDIN,     0
 .equ _STDOUT,    1
+
+.equ _SBRK,     45
 .equ _GETC,     63
 .equ _PUTC,     64
 .equ _EXIT,     93
@@ -74,7 +72,6 @@ _char:
 
 #---------------------------------------------------------------------
 
-
 .section .text
 .p2align 2, 0x0
 
@@ -82,12 +79,15 @@ _char:
 # linux ecall for exit
 _exit:
         mov r0, #_ZERO
-        mov r8, #_EXIT
-        svc #0
+        mov r7, #_EXIT
+        swi #0
 
 # load system call for init
 _init:
-        bx lr
+
+        b _sbrk
+
+        # bx lr
 
 #---------------------------------------------------------------------
 # linux ecall for getc
@@ -95,11 +95,13 @@ _getc:
         mov r0, #_STDIN
         ldr r1, =_char
         mov r2, #_ONE
-        mov r8, #_GETC
-        svc #0
+        mov r7, #_GETC
+        swi #0
+
         #EOF?
         cmp r0, #0
         beq _exit
+
         ldrb r3, [r1]
         bx lr
 
@@ -109,25 +111,26 @@ _putc:
         mov r0, #_STDOUT
         ldr r1, =_char
         mov r2, #_ONE
-        mov r8, #_PUTC
+        mov r7, #_PUTC
         strb r3, [r1]
 
 _rets:
-        svc #0
+        swi #0
         bx lr
 
 #---------------------------------------------------------------------
-/*
-.set INITIAL_DATA_SEGMENT_SIZE,65536
-.set __NR_brk, 1000
+.set FORTH_SIZE, 65536
 
-_break:
+_sbrk:
         mov r1, #0
-        mov r8, #__NR_brk
-        svc #0
-
-        ldrb r3, r0
+        mov r7, #_SBRK
+        swi #0
         
-        mov r0, #INITIAL_DATA_SEGMENT_SIZE
-        b rets
-*/
+        # this is where here is
+        mov r3, r0
+
+        # gets more memory
+        adds r0, #FORTH_SIZE
+        b _rets
+
+#---------------------------------------------------------------------
