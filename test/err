@@ -1,3 +1,0 @@
-minimal.S: Assembler messages:
-minimal.S:91: Error: symbol .bss is in a different section
-minimal.S:104: Error: symbol .bss is in a different section
