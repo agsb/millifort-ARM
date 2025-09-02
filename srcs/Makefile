@@ -21,11 +21,16 @@ PASS = ${BASE}${NAME}
 
 GCC = ${PASS}gcc
 
-GCCFLAGS = -nostartfiles -nodefaultlibs -static -Oz \
-	   -march=armv6
+GCCFLAGS = -nostartfiles -nodefaultlibs \
+		-static -Oz -march=armv6
+
+
+	 #--ro_base=0x0 --rw_base=0x400000 --zi_base=0x405000 
+	 #--first="init.o(init)"
 	   
 LDFLAGS = 
 
+#-Weverything
 #-Wl,--stats
 #-Wl,-build-id 
 
@@ -37,7 +42,7 @@ STRIP = ${PASS}strip
 
 OBJDUMP = ${PASS}objdump
 
-QEMU = ${BASE}qemu-riscv64
+QEMU = ${BASE}qemu-arm
 
 #QEMU = ${BASE}qemu-riscv32
 

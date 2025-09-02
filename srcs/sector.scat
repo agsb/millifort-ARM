@@ -1,0 +1,19 @@
+
+LR1 0x0000 0x20000
+{
+    ER_RO 0x0
+    {
+        init.o (INIT, +FIRST)
+        *(+RO)
+    }
+
+    ER_RW 0x400000
+    {
+        *(+RW)
+    }
+
+    ER_ZI 0x405000
+    {
+        *(+ZI)
+    }
+}

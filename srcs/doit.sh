@@ -4,6 +4,6 @@
 
 make clean ; make
 
-qemu-riscv32 sector-riscv.elf \
+qemu-arm sector-armv6.elf \
  -display none -bios none -serial mon:stdio -smp 1 -machine virt
 

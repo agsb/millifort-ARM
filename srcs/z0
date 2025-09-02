@@ -1,0 +1,9 @@
+rm -f sector-armv6.out sector-armv6.map sector-armv6.lst \
+      sector-armv6.elf sector-armv6.dmp sector-armv6.bin \
+      sector-armv6.ord sector-armv6.sec \
+      err out
+/usr/bin/arm-none-eabi-gcc -nostartfiles -nodefaultlibs -static -Oz -march=armv6  -Wa,-alms=sector-armv6.lst  -o sector-armv6.elf sector-armv6.S 2> err | tee out
+/usr/bin/arm-none-eabi-objdump -hdta sector-armv6.elf > sector-armv6.dmp
+/usr/bin/arm-none-eabi-readelf -a sector-armv6.elf > sector-armv6.map
+/usr/bin/arm-none-eabi-objcopy --dump-section .text=sector-armv6.sec sector-armv6.elf
+/usr/bin/arm-none-eabi-objcopy sector-armv6.elf -O binary sector-armv6.bin

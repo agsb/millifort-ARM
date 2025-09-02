@@ -132,20 +132,18 @@ h_\label:
 .endm
 
 #---------------------------------------------------------------------
-# for deep, more than one, nested calls, use callee
+# for deep, more than one, nested calls
 #
 .global pushra
 
 .macro pushra
-        #addi sp, sp, -4   
-        #str   ra, 0(sp)    
+        push { r3, lr }
 .endm
 
 .global pullra
 
 .macro pullra
-        #ldr   ra, 0(sp)    
-        #addi sp, sp, +4   
+        pop { r3, pc }
 .endm
 
 #----------------------------------------------------------------------
@@ -154,19 +152,11 @@ h_\label:
 .global putchar
 
 .macro putchar value
-       #li a3, \value
+       mov a3, #\value
        bl _putc
 .endm
 
 #----------------------------------------------------------------------
-.section .data
-
-# There is no spoon.
-
-#----------------------------------------------------------------------
-.section .bss
-.p2align 2, 0x0
-
 # user structure of internal Forth variables
 # accessed as offsets
 
@@ -193,6 +183,16 @@ h_\label:
 
 # heap backward
 .equ TAIL, 7 * CELL
+
+#----------------------------------------------------------------------
+#----------------------------------------------------------------------
+.section .data
+
+# There is no spoon.
+
+#----------------------------------------------------------------------
+.section .bss
+.p2align 2, 0x0
 
 #----------------------------------------------------------------------
 # and this is it
@@ -242,7 +242,7 @@ _start:
 
 #----------------------------------------------------------------------
 # do any system inits
-main:
+init:
 # just for sake
 
         # fence
@@ -362,7 +362,7 @@ tick:
 
 # move to hash
         
-        adds wrd, #+1*CELL
+        adds wrd, #CELL
 
         ldr fst, [wrd]
 
@@ -383,7 +383,7 @@ tick:
 eval:
 # wrd points to or start of code or list of references
 
-        adds wrd, #+1*CELL
+        adds wrd, #CELL
 
 # immediate ? 
 
@@ -564,7 +564,7 @@ mask:
 
         pullra
 
-        bx lr
+#       bx lr
         
 #---------------------------------------------------------------------
 comma:
@@ -656,8 +656,9 @@ def_word "nand", "nand", h_fetch, hash_nand
         bl pull2
 
         and fst, snd
-        
         neg fst, fst
+        
+        #bic fst, snd
 
         b keep1
 
@@ -698,7 +699,7 @@ push1:
         ldr idx, [usr, #SPTR]
         
 back1:
-        adds idx, #-1*CELL
+        subs idx, #CELL
 
 keep1:
         str fst, [idx]
@@ -718,7 +719,7 @@ def_word ":", "colon", h_userat, hash_colon
 
 # stat is 'compile' == 1
         
-        add fst, #ONE
+        mov fst, #ONE
         
         str fst, [usr, #STAT]
 
@@ -781,7 +782,7 @@ unnest: #; exit
         
         ldr ipt, [idx]
         
-        adds idx, #+1*CELL
+        adds idx, #CELL
         
         str idx, [usr, #RPTR]
 
@@ -790,7 +791,7 @@ next:
         
         ldr wrd, [ipt]
         
-        adds ipt, #+1*CELL
+        adds ipt, #CELL
 
 pick:
 # compare address, if is a primitive then jumps 
@@ -806,7 +807,7 @@ nest:   #; enter
         
         ldr idx, [usr, #RPTR]
         
-        adds idx, #-1*CELL
+        subs idx, #CELL
         
         str ipt, [idx]
         
@@ -834,7 +835,7 @@ jump:
 # any other primitives after exit
 #---------------------------------------------------------------------
 
-# .equ EXTRAS, YES
+.equ EXTRAS, YES
 
 .ifdef EXTRAS
 #----------------------------------------------------------------------
