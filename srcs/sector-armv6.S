@@ -304,7 +304,7 @@ quit:
 
 # stat is 'interpret' == \0
         
-        ldr fst, #0
+        mov fst, #0
         str fst, [usr, #STAT]
 
         b okey
@@ -368,7 +368,7 @@ tick:
 
 # mask the FLAG and hold it in snd
 
-        ldr snd, #FLAG_IMM
+        ldr snd, =FLAG_IMM
 
         ands snd, fst
 
@@ -504,11 +504,11 @@ gets:
 400:
 
 # replace \n with space 
-        ldr fst, #BL
+        mov fst, #BL
         strb fst, [idx]
 
 # mark eol with \0
-        ldr fst, #0
+        mov fst, #0
         strb fst, [idx]
 
         b 100b
@@ -528,7 +528,7 @@ hash:
 djb2:
         # easy 5381
    
-        ldr hsh, #DJB2
+        ldr hsh, =DJB2
 
 100:
         ldrb fst, [idx]
@@ -553,7 +553,7 @@ djb2:
 # mask forth flag 
 mask:
 
-        ldr fst, #MASK_IMM
+        ldr fst, =MASK_IMM
         
         and hsh, fst
 
@@ -754,7 +754,7 @@ def_word ";", "semis",  h_colon, hash_semis
 
 # stat is 'interpret' == 0
         
-        ldr fst, #0
+        mov fst, #0
         str fst, [usr, #STAT]
 
 # compound words must ends with exit
@@ -822,7 +822,7 @@ move:
 jump: 
 # jump to primitive
         
-        blx (wrd)
+        blx wrd
 
 #----------------------------------------------------------------------
 # system dependences, linux ecall

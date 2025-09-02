@@ -77,8 +77,8 @@ _char:
 
 # linux ecall for exit
 _exit:
-        ldr r0, _ZERO
-        ldr r8, _EXIT
+        mov r0, #_ZERO
+        mov r8, #_EXIT
         svc #0
 
 # load system call for init
@@ -87,34 +87,26 @@ _init:
 
 # linux ecall for getc
 _getc:
-        ldr r0, _STDIN
+        mov r0, #_STDIN
         ldr r1, =_char
-        ldr r2, _ONE
-        ldr r8, _GETC
+        mov r2, #_ONE
+        mov r8, #_GETC
         svc #0
         #EOF?
         cmp r0, #0
         beq _exit
-        ldrb r3, (a0)
+        ldrb r3, [r1]
         bx lr
 
 # linux ecall for putc
 _putc:
-        ldr r0, _STDOUT
+        mov r0, #_STDOUT
         ldr r1, =_char
-        ldr r2, _ONE
-        ldr r8, _PUTC
-        strb r3, (x0)
+        mov r2, #_ONE
+        mov r8, #_PUTC
+        strb r3, [r1]
         svc #0
         bx lr
 
 #---------------------------------------------------------------------
 
-.equ CELL, 4
-    #ldr idx, RPTR (usr)
-       
-    adds r3, #-1*CELL
-
-    #str ipt, 0 (idx)
-
-    #str idx, RPTR (usr)
