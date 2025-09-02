@@ -47,7 +47,7 @@
 .equ hash_cellless, 0x0A86DDEE
 
 .macro mhex rg
-        mov r3, #\rg
+        mov r3, \rg
         bl puthex
         putchar ' '
 .endm
@@ -63,7 +63,7 @@
 
 #---------------------------------------------------------------------
 # ( w -- w/2 ) #; shift right
-def_word "2/", "sfr", into_extras, hash_sfr
+def_word "2/", "sfr", hash_sfr
 
         bl pull2
         
@@ -74,7 +74,7 @@ def_word "2/", "sfr", into_extras, hash_sfr
 #---------------------------------------------------------------------
 # ( a -- ) execute a word address at top of data stack
 # not change the data stack
-def_word "exec", "exec", h_sfr, hash_exec
+def_word "exec", "exec", hash_exec
         
         bl pull2
         
@@ -84,31 +84,31 @@ def_word "exec", "exec", h_sfr, hash_exec
 
 #---------------------------------------------------------------------
 # ( -- ) execute a jump to a reference at IP
-def_word ":$", "docode", h_exec, hash_docode
+def_word ":$", "docode", hash_docode
         
         bx ipt
 
 #---------------------------------------------------------------------
 # ( -- ) execute a jump to next
-def_word ";$", "donext", h_docode, hash_donext
+def_word ";$", "donext", hash_donext
         
         b next
 
 #---------------------------------------------------------------------
 # ( -- ) exit forth
-def_word "bye", "byes", h_donext, hash_bye
+def_word "bye", "byes", hash_bye
         
         b _exit
 
 #---------------------------------------------------------------------
 # ( -- ) ae abort
-def_word "abort", "aborts", h_byes, hash_abort
+def_word "abort", "aborts", hash_abort
         
         b abort
 
 #---------------------------------------------------------------------
 # ( -- ) ae list of data stack
-def_word ".S", "splist", h_aborts, hash_splist
+def_word ".S", "splist", hash_splist
 
         bl stackS
 
@@ -116,7 +116,7 @@ def_word ".S", "splist", h_aborts, hash_splist
 
 #----------------------------------------------------------------------
 # ( -- ) ae list of return stack
-def_word ".R", "rplist", h_splist, hash_rplist
+def_word ".R", "rplist", hash_rplist
 
         bl stackR
         
@@ -124,7 +124,7 @@ def_word ".R", "rplist", h_splist, hash_rplist
 
 #----------------------------------------------------------------------
 # ( a b -- a b ) dumps memory between a and b
-def_word "dump", "dump", h_rplist, hash_dump
+def_word "dump", "dump", hash_dump
 
         bl pull2
         
@@ -140,7 +140,7 @@ def_word "dump", "dump", h_rplist, hash_dump
 
 #----------------------------------------------------------------------
 # ( -- ) list all words in compiled dictionary, 
-def_word "words", "words", h_dump, hash_words
+def_word "words", "words", hash_words
 
         bl wordf
 
@@ -148,7 +148,7 @@ def_word "words", "words", h_dump, hash_words
 
 #----------------------------------------------------------------------
 # ( -- ) list last word in dictionary, 
-def_word "see", "sees", h_words, hash_see
+def_word "see", "sees", hash_see
 
         bl wordu
 
@@ -156,7 +156,7 @@ def_word "see", "sees", h_words, hash_see
 
 #----------------------------------------------------------------------
 # ( u -- u ) print tos in hexadecimal
-def_word ".", "dot", h_sees, hash_dot
+def_word ".", "dot", hash_dot
 
         bl pull2
 
@@ -167,15 +167,11 @@ def_word ".", "dot", h_sees, hash_dot
 
 #---------------------------------------------------------------------
 # ( -- w ) size of a cell 
-def_word "cell", "cell", h_dot, hash_cell
+def_word "cell", "cell", hash_cell
 
         mov fst, #4
 
         b push1
-
-#---------------------------------------------------------------------
-
-.set from_extras, h_cell
 
 #---------------------------------------------------------------------
 #
@@ -407,12 +403,12 @@ dumps:
         # init (nos)
         mov r6, r4
 
-        mhex a6
+        mhex r6
 
         # many
         sub r5, r6
 
-        mhex a5
+        mhex r5
 
         putchar '\n'
 
@@ -514,6 +510,8 @@ shows:
 #----------------------------------------------------------------------
 # code a ASCII $0-F(Z) hexadecimal in a value
 #  
+.ifdef NUMBERS
+
 number:
 
         pushra
@@ -552,4 +550,4 @@ digit:
 # is_error
         bx lr
 
-
+.endif

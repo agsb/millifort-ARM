@@ -2,7 +2,7 @@
 # using pre-processor CPP (GNU GCC)
 # for alias register names 
 # do not change
-# a0, a1, a2, a7 are used by ecalls
+# r0, r1, r2, r8 are used by ecalls
 
 # forth struct pointer, constant 
 #define usr r7

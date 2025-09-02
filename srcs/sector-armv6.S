@@ -123,10 +123,13 @@
 #
 .global def_word
 
-.macro def_word name, label, last, hash
-#.p2align 2, 0x00
+.set h_last, 0
+
+.macro def_word name, label, hash
+.p2align 2, 0x0
 h_\label:
-        .word \last
+        .int h_last
+        .set h_last, h_\label
         .word \hash
 \label:
 .endm
@@ -184,7 +187,6 @@ h_\label:
 # heap backward
 .equ TAIL, 7 * CELL
 
-#----------------------------------------------------------------------
 #----------------------------------------------------------------------
 .section .data
 
@@ -610,7 +612,7 @@ pull2:
 
 #---------------------------------------------------------------------
 # ( -- c ) 
-def_word "key", "key", 0x0, hash_key
+def_word "key", "key", hash_key
 
         bl _getc
 
@@ -618,7 +620,7 @@ def_word "key", "key", 0x0, hash_key
 
 #---------------------------------------------------------------------
 # ( c -- ) 
-def_word "emit", "emit", h_key, hash_emit
+def_word "emit", "emit", hash_emit
         
         bl pull2
 
@@ -628,7 +630,7 @@ def_word "emit", "emit", h_key, hash_emit
 
 #---------------------------------------------------------------------
 # ( a w -- ),  [a] = w
-def_word "!", "store", h_emit, hash_store
+def_word "!", "store", hash_store
         
         bl pull2
 
@@ -641,7 +643,7 @@ drop1:
 
 #---------------------------------------------------------------------
 # ( a -- w ), w = [a]
-def_word "@", "fetch", h_store, hash_fetch
+def_word "@", "fetch", hash_fetch
         
         bl pull2
         
@@ -651,7 +653,7 @@ def_word "@", "fetch", h_store, hash_fetch
 
 #---------------------------------------------------------------------
 # ( w1 w2 -- w), NOT(w1 AND w2)
-def_word "nand", "nand", h_fetch, hash_nand
+def_word "nand", "nand", hash_nand
         
         bl pull2
 
@@ -664,7 +666,7 @@ def_word "nand", "nand", h_fetch, hash_nand
 
 #---------------------------------------------------------------------
 # ( w1 w2 -- w), w = w1 + w2  
-def_word "+", "plus", h_nand, hash_plus
+def_word "+", "plus", hash_plus
         
         bl pull2
 
@@ -674,7 +676,7 @@ def_word "+", "plus", h_nand, hash_plus
 
 #---------------------------------------------------------------------
 # ( 0 -- FALSE) | ( n -- TRUE), not #0 at top ?
-def_word "0#", "zeroq", h_plus, hash_notzero
+def_word "0#", "zeroq", hash_notzero
 
         bl pull2
         
@@ -691,7 +693,7 @@ istrue:
 
 #---------------------------------------------------------------------
 # ( -- state ), return an reference
-def_word "u@", "userat", h_zeroq, hash_userat
+def_word "u@", "userat", hash_userat
         
         ldr fst, [usr] 
 
@@ -710,7 +712,7 @@ save1:
         b next
 
 #---------------------------------------------------------------------
-def_word ":", "colon", h_userat, hash_colon
+def_word ":", "colon", hash_colon
 # save here, panic if semis not follow elsewhere
         
         ldr fst, [usr, #HERE]
@@ -746,7 +748,7 @@ finish:
         b next 
 
 #---------------------------------------------------------------------
-def_word ";", "semis",  h_colon, hash_semis 
+def_word ";", "semis", hash_semis 
 # update last, panic if colon not lead elsewhere 
         
         ldr fst, [usr, #HEAD]
@@ -774,15 +776,15 @@ def_word ";", "semis",  h_colon, hash_semis
 # "why there is no 'docol at start of words ?"
 #
 # ( -- ) 
-def_word "exit", "exit", h_semis, hash_exit
+def_word "exit", "exit", hash_exit
 unnest: #; exit
 # return pull, ipt = (rpt), rpt += cell 
         
         ldr idx, [usr, #RPTR]
         
-        ldr ipt, [idx]
+        ldr ipt, [idx], #CELL
         
-        adds idx, #CELL
+        # adds idx, #CELL
         
         str idx, [usr, #RPTR]
 
@@ -807,9 +809,9 @@ nest:   #; enter
         
         ldr idx, [usr, #RPTR]
         
-        subs idx, #CELL
+        #subs idx, #CELL
         
-        str ipt, [idx]
+        str ipt, [idx, #-CELL]!
         
         str idx, [usr, #RPTR]
 
@@ -841,20 +843,10 @@ jump:
 #----------------------------------------------------------------------
 # keep last entry of primitives
 
-.set into_extras, h_exit
-
 #include "extras-milliforth.S"
 
 #----------------------------------------------------------------------
 # keep last entry of extras
-
-.set h_last, from_extras
-
-.endif
-
-.ifndef EXTRAS
-
-.set h_last, h_exit
 
 .endif
 

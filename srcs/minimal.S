@@ -73,8 +73,12 @@ _char:
 .word   0x0
 
 #---------------------------------------------------------------------
-.section .text
 
+
+.section .text
+.p2align 2, 0x0
+
+#---------------------------------------------------------------------
 # linux ecall for exit
 _exit:
         mov r0, #_ZERO
@@ -85,6 +89,7 @@ _exit:
 _init:
         bx lr
 
+#---------------------------------------------------------------------
 # linux ecall for getc
 _getc:
         mov r0, #_STDIN
@@ -98,6 +103,7 @@ _getc:
         ldrb r3, [r1]
         bx lr
 
+#---------------------------------------------------------------------
 # linux ecall for putc
 _putc:
         mov r0, #_STDOUT
@@ -105,8 +111,23 @@ _putc:
         mov r2, #_ONE
         mov r8, #_PUTC
         strb r3, [r1]
+
+_rets:
         svc #0
         bx lr
 
 #---------------------------------------------------------------------
+/*
+.set INITIAL_DATA_SEGMENT_SIZE,65536
+.set __NR_brk, 1000
 
+_break:
+        mov r1, #0
+        mov r8, #__NR_brk
+        svc #0
+
+        ldrb r3, r0
+        
+        mov r0, #INITIAL_DATA_SEGMENT_SIZE
+        b rets
+*/
