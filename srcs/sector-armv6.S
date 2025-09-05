@@ -34,7 +34,7 @@
 
     Stacks moves backwards, decrease and push, pull and increase.
 
-    Made for a little endian RiscV, cell size of 4 bytes, 32-bit
+    Made for a little endian, cell size of 4 bytes, 32-bit
 
     This version relies on the .data, .text, .rodata, .bss sections 
     being in this order, the dictionary will continue at end of .bss.
@@ -129,13 +129,14 @@
 .p2align 2, 0x0
 h_\label:
         .int h_last
-        .set h_last, h_\label
         .word \hash
 \label:
+        .set h_last, h_\label
 .endm
 
 #---------------------------------------------------------------------
 # for deep, more than one, nested calls
+# also does return
 #
 .global pushra
 
@@ -249,10 +250,7 @@ init:
 
         # fence
 
-        bl _init
-
-        ldr snd, =h_here
-        str fst, [snd]
+        # bl _init
 
 #----------------------------------------------------------------------
 # do what need be only once
@@ -266,9 +264,9 @@ cold:
 warm:
 # next heap free cell  (end of .bss)
         
-        ldr snd, =h_here
-        ldr fst, [snd]
 
+        ldr fst, =h_here
+        # ldr fst, [fst]
         str fst, [usr, #HERE]
 
 # link list of headers, aka dictionary
@@ -406,7 +404,9 @@ eval:
 # compiling ? if state != 0
 compile:
 
-        bl comma
+        mov fst, wrd
+
+        bl docomma
 
         b resolve
 
@@ -569,14 +569,12 @@ mask:
 
         pullra
 
-#       bx lr
-        
 #---------------------------------------------------------------------
-comma:
+docomma:
         
         ldr idx, [usr, #HERE]
       
-        str wrd, [idx]
+        str fst, [idx]
       
         adds idx, #CELL
       
@@ -730,11 +728,13 @@ def_word ":", "colon", hash_colon
 
 # make a header:
 
+create:
+
 # copy last into (here)
         
-        ldr wrd, [usr, #LAST]
+        ldr fst, [usr, #LAST]
         
-        bl comma
+        bl docomma
 
 # get following token
         
@@ -742,11 +742,11 @@ def_word ":", "colon", hash_colon
         
 # copy hash into (here)
 
-        mov wrd, hsh
+        mov fst, hsh
 
 finish:
 
-        bl comma
+        bl docomma
 
         b next 
 
@@ -761,11 +761,12 @@ def_word ";", "semis", hash_semis
 # stat is 'interpret' == 0
         
         mov fst, #0
+
         str fst, [usr, #STAT]
 
 # compound words must ends with exit
         
-        ldr wrd, =exit
+        ldr fst, =exit
 
         b finish
 

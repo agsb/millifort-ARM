@@ -1,27 +1,28 @@
 
  : void u@ 0# ;
-see
+ see
 
  : | .S .R ;
-see
+ see
 
  : -1 u@ 0# ;
-see
+ see
 
  :  0 -1 -1 nand ;
-see
+ see
 
  : TRUE -1 ;
-see
+ see
 
  : FALSE 0 ;
-see
+ see
 
  :  1 -1 -1 + -1 nand ;
  see
 
  :  2 1 1 + ;
  see
+ 
  :  4 2 2 + ;
  see
 
@@ -72,6 +73,12 @@ see
  see
 
  : drop dup - + ;
+ see
+
+ : nip swap drop ;
+ see
+
+ : tuck swap over ;
  see
 
  : 2dup over over ;
@@ -195,3 +202,5 @@ see
  ." That's all Folks !" cr
  
  words 
+
+ dump

@@ -1,9 +1,0 @@
-rm -f sector-armv6.out sector-armv6.map sector-armv6.lst \
-      sector-armv6.elf sector-armv6.dmp sector-armv6.bin \
-      sector-armv6.ord sector-armv6.sec \
-      err out
-/usr/bin/arm-linux-gnueabi-gcc -nostartfiles -nodefaultlibs -static -Oz -march=armv6 -mtune=cortex-m0  -Wa,-alms=sector-armv6.lst -Wa,-mlittle-endian  -o sector-armv6.elf sector-armv6.S 2> err | tee out
-/usr/bin/arm-linux-gnueabi-objdump -hdta sector-armv6.elf > sector-armv6.dmp
-/usr/bin/arm-linux-gnueabi-readelf -a sector-armv6.elf > sector-armv6.map
-/usr/bin/arm-linux-gnueabi-objcopy --dump-section .text=sector-armv6.sec sector-armv6.elf
-/usr/bin/arm-linux-gnueabi-objcopy sector-armv6.elf -O binary sector-armv6.bin
