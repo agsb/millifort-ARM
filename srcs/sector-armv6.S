@@ -222,7 +222,6 @@ rp0: .word 0x0
 _tib:       
 .skip tibz
 
-#xxx
 # pad grows forward
 _pad:       
 .skip padz
@@ -238,6 +237,12 @@ h_here: .word 0x0
 .text 
 .p2align 2, 0x0
 
+.equ debug, YES
+
+.equ dismiss, YES
+
+.equ postpones, YES
+
 #----------------------------------------------------------------------
 .globl _start
 
@@ -247,8 +252,6 @@ _start:
 # do any system inits
 init:
 # just for sake
-
-        # fence
 
         # bl _init
 
@@ -266,7 +269,6 @@ warm:
         
 
         ldr fst, =h_here
-        # ldr fst, [fst]
         str fst, [usr, #HERE]
 
 # link list of headers, aka dictionary
@@ -283,13 +285,24 @@ reset:
 
 #---------------------------------------------------------------------
 # reset stacks
+
+# xxx
+.ifndef dismiss
+
+miss:
+
+.endif
+
 error:
 
 # xxx 
+.ifdef debug
+
         putchar '\n'
         putchar '?'
         putchar '?'
         putchar '\n'
+.endif
 
 #---------------------------------------------------------------------
 abort:
@@ -310,21 +323,14 @@ quit:
         mov fst, #0
         str fst, [usr, #STAT]
 
-        b okey
-
-#---------------------------------------------------------------------
-# the outer loop, need for indirect
-
-resolvept:
-        
-        .word okey
-
 #---------------------------------------------------------------------
 okey:
 
 # bl prompt_okey
 
 # xxx
+.ifdef debug
+
         ldr fst, [usr, #STAT]
         cmp fst, #0
         bne resolve
@@ -333,6 +339,8 @@ okey:
         putchar 'O'
         putchar 'K'
         putchar '\n'
+
+.endif
 
 #---------------------------------------------------------------------
 # get a hash of the next token
@@ -353,58 +361,74 @@ tick:
 # verify end of dictionary, take care to abort
         
         cmp lnk, #0
-        beq error    
+        beq miss    
 
 # linked list
         
-        mov wrd, lnk
+        mov fst, lnk
 
 # move next link 
         
-        ldr lnk, [wrd]
+        ldr lnk, [fst]
 
 # move to hash
         
-        adds wrd, #CELL
+        adds fst, #CELL
 
-        ldr fst, [wrd]
+        ldr wrd, [fst]
 
 # mask the FLAG and hold it in snd
 
         ldr snd, =FLAG_IMM
 
-        ands snd, fst
+        ands snd, wrd
 
-        eor fst, snd
+        eor wrd, snd
 
 # compare
         
-        cmp hsh, fst
+        cmp hsh, wrd
+
         bne 100b
 
 #---------------------------------------------------------------------         
 eval:
 # wrd points to or start of code or list of references
 
-        adds wrd, #CELL
-
-# immediate ? 
-
-        cmp snd, #0
-        bne immediate      
+        adds fst, #CELL
 
 # executing ? if state == 0
         
-        ldr fst, [usr, #STAT]
+        ldr trd, [usr, #STAT]
         
-        cmp fst, #0
+        cmp trd, #0
+
         beq execute
 
+.ifdef postpones
+# postpone ? if state < 0
+        
+        cmp trd, #0
+
+        blt postpone
+.endif
+        
+# immediate ? 
+
+        cmp snd, #0
+
+        bne immediate      
+
 #---------------------------------------------------------------------         
+.ifdef postpones
+# reset state to compile
+postpone:
+        addi trd, zero, ONE
+        sw trd, STAT (usr)
+.endif
+
 # compiling ? if state != 0
 compile:
-
-        mov fst, wrd
 
         bl docomma
 
@@ -422,7 +446,22 @@ immediate:
 # unexpected end of dictionary
 # wipe remains compiled
 # xxx
+
+.ifdef dismiss
 miss:
+miss:
+       	putchar '\n'
+100:
+       	lb fst, 0 (idx)
+       	call _putc
+	beq fst, trd, 100f
+	addi idx, idx, ONE
+	j 100b
+100:
+        putchar ' '
+ 	putchar '?'
+
+wipe:
         # compiling ?
         ldr fst, [usr, #STAT]
         cmp fst, #0
@@ -434,9 +473,7 @@ miss:
 100:
         b error
 
-#---------------------------------------------------------------------
-# xxx
-# #include "hexy.S"
+.endif 
 
 #---------------------------------------------------------------------
 # in place every token, no rewinds
@@ -531,6 +568,12 @@ gets:
 # idx returns next space after
 hash:
 djb2:
+
+.ifdef dismiss
+
+	mov wrd, idx
+.endif
+
         # easy 5381
    
         ldr hsh, =DJB2
@@ -566,6 +609,12 @@ mask:
 # save toin
 
         str idx, [usr, #TOIN]
+
+.ifdef dismiss
+
+        add idx, zero, wrd
+
+.endif
 
         pullra
 
@@ -830,6 +879,13 @@ jump:
 # jump to primitive
         
         blx wrd
+
+#---------------------------------------------------------------------
+# the outer loop, need for indirect
+
+resolvept:
+        
+        .word okey
 
 #----------------------------------------------------------------------
 # system dependences, linux ecall
