@@ -46,18 +46,6 @@
 .equ hash_cellplus, 0x0A86DDE8
 .equ hash_cellless, 0x0A86DDEE
 
-.macro mhex rg
-        mov r3, \rg
-        bl puthex
-        putchar ' '
-.endm
-
-.macro mhit it
-        putchar '\n'
-        putchar \it
-        putchar ' '
-.endm
-
 #---------------------------------------------------------------------
 # extras links to last primitive
 

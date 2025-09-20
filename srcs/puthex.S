@@ -1,6 +1,31 @@
+
+#----------------------------------------------------------------------
+# easy pretty print one char
+#
+.globl putchar
+
+.macro putchar value
+
+        mov a3, #\value
+
+        bl _putc
+.endm
+
+
+#---------------------------------------------------------------------
+.globl mhit
+
+.macro mhit it
+        putchar '\n'
+        putchar \it
+        putchar ' '
+.endm
+
 #---------------------------------------------------------------------
 # easy it
 #
+.globl mhey
+
 .macro mhey rg
 
         mov r3, \rg
@@ -16,10 +41,13 @@
         pullra 
         
 .endm
+
 #---------------------------------------------------------------------
 # code a 32-bit word in ASCII hexadecimal, same as puthex
 #
-puthey:
+.globl putxy
+
+puthex:
 
         pushra
 
@@ -78,3 +106,4 @@ puthey:
 
         ret
 
+#---------------------------------------------------------------------

@@ -28,3 +28,69 @@
 # generic
 #define snd r5
 
+#---------------------------------------------------------------------
+# generics alias 
+
+# as FORTH 1983
+
+.equ FALSE, 0
+
+.equ TRUE, -1
+
+# usefull
+
+.equ ONE, 1
+
+.equ TWO, 2
+
+.equ CELL, 4
+
+# \n
+.equ NL, 10    
+
+# \r
+.equ CR, 13    
+
+# space
+.equ BL, 32    
+
+# data stack, 36 cells 
+
+.equ spz, 36 * CELL
+
+# return stack, 36 cells
+
+.equ rpz, 36 * CELL
+
+# Terminal input buffer 80 bytes, (but 72 is enough), moves forwards
+
+.equ tibz, 80
+
+# PAD for temporary formating etc
+
+.equ padz, 48
+
+# highlander, immediate flag, unique 
+
+# -2147483648
+.equ FLAG_IMM, 0x80000000
+
+# +2147483647
+.equ MASK_IMM, 0x7FFFFFFF
+
+#---------------------------------------------------------------------
+# primitives djb2 hash cleared of bit 31
+# semis is the unique with FLAG_IMM 
+
+.equ hash_key,   0x0B876D32 
+.equ hash_emit,  0x7C6B87D0 
+.equ hash_store, 0x0002B584 
+.equ hash_fetch, 0x0002B5E5 
+.equ hash_nand,  0x7C727500 
+.equ hash_plus,  0x0002B58E 
+.equ hash_notzero, 0x00596816 
+.equ hash_userat, 0x00596F90
+.equ hash_colon, 0x0002B59F 
+.equ hash_semis, 0x8002B59E 
+.equ hash_exit,  0x7C6BBE85 
+
