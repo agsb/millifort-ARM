@@ -78,6 +78,37 @@
 # +2147483647
 .equ MASK_IMM, 0x7FFFFFFF
 
+<<<<<<< HEAD
+=======
+#----------------------------------------------------------------------
+# user structure of internal Forth variables
+# accessed as offsets
+
+# data stack index
+.equ SPTR, 0 * CELL
+
+# return stack index
+.equ RPTR, 1 * CELL 
+
+# last link cell in heap dictionary linked list
+.equ LAST, 2 * CELL
+
+# next free cell in heap dictionary, aka dpt
+.equ HERE, 3 * CELL
+
+# toin next free byte in TIB
+.equ TOIN, 4 * CELL
+
+# state flag
+.equ STAT, 5 * CELL
+
+# heap forward
+.equ HEAD, 6 * CELL
+
+# heap backward
+.equ TAIL, 7 * CELL
+
+>>>>>>> 0700d3f ( sector compiled ok, need extas now)
 #---------------------------------------------------------------------
 # primitives djb2 hash cleared of bit 31
 # semis is the unique with FLAG_IMM 
@@ -94,3 +125,7 @@
 .equ hash_semis, 0x8002B59E 
 .equ hash_exit,  0x7C6BBE85 
 
+<<<<<<< HEAD
+=======
+#---------------------------------------------------------------------
+>>>>>>> 0700d3f ( sector compiled ok, need extas now)

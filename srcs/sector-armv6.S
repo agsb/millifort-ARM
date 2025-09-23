@@ -47,12 +47,23 @@
 # using pre-processor CPP (GNU GCC)
 # for alias register names 
 # beware about changes
-# a3, a0, a1, a2, a7 are used by ecalls in _putc and _getc
-# a4, a5, a6 are generics
+# r3, r0, r1, r2, r7 are used by ecalls in _putc and _getc
+# r4, r5, r6 are generics
 
 #include "defines.S"
 
 #---------------------------------------------------------------------
+<<<<<<< HEAD
+=======
+
+# .equ debug, YES
+
+# .equ dismiss, YES
+
+# .equ postpones, YES
+
+#---------------------------------------------------------------------
+>>>>>>> 0700d3f ( sector compiled ok, need extas now)
 # macro to define the header of words in dictionary
 #
 .global def_word
@@ -83,6 +94,7 @@ h_\label:
 .endm
 
 #----------------------------------------------------------------------
+<<<<<<< HEAD
 # user structure of internal Forth variables
 # accessed as offsets
 
@@ -110,6 +122,16 @@ h_\label:
 # heap backward
 .equ TAIL, 7 * CELL
 
+=======
+# easy pretty print one char
+#
+.global putchar
+
+.macro putchar value
+       mov a3, #\value
+       bl _putc
+.endm
+>>>>>>> 0700d3f ( sector compiled ok, need extas now)
 #----------------------------------------------------------------------
 .section .data
 
@@ -119,7 +141,10 @@ h_\label:
 .section .bss
 .p2align 2, 0x0
 
+<<<<<<< HEAD
 #----------------------------------------------------------------------
+=======
+>>>>>>> 0700d3f ( sector compiled ok, need extas now)
 # This is it
 
 _user:
@@ -147,19 +172,16 @@ _tib:
 # start of user dictionary 
 h_here: .word 0x0
 
-#-----------------------------------------------------------------------
-# at end of .bss (.heap) 
-#----------------------------------------------------------------------
-
 #----------------------------------------------------------------------
 .text 
 .p2align 2, 0x0
 
-.equ debug, YES
+# xxx
+.ifdef debug
 
-.equ dismiss, YES
+#include "puthex.S"
 
-.equ postpones, YES
+.endif
 
 #----------------------------------------------------------------------
 .globl _start
@@ -201,14 +223,44 @@ reset:
         str fst, [usr, #TOIN]
 
 #---------------------------------------------------------------------
-# reset stacks
-
-# xxx
-.ifndef dismiss
-
+# unexpected end of dictionary
 miss:
 
-.endif
+# xxx
+.ifdef dismiss
+
+        j abort
+
+# wipe remains compiled
+
+       	putchar '\n'
+# trd id BL
+100:
+       	lb fst, 0 (idx)
+       	call _putc
+	beq fst, trd, 100f
+	addi idx, idx, ONE
+	j 100b
+100:
+        putchar ' '
+ 	putchar '?'
+
+wipe:
+        # compiling ?
+        ldr fst, [usr, #STAT]
+        cmp fst, #0
+        bne 100f
+
+        # wipe remains
+        ldr fst, [usr, #HEAD]
+        str fst, [usr, #HERE]
+100:
+        b error
+
+.endif 
+
+
+# reset stacks
 
 error:
 
@@ -250,7 +302,7 @@ okey:
 
         ldr fst, [usr, #STAT]
         cmp fst, #0
-        bne resolve
+        bne tick
 
         putchar '\n'
         putchar 'O'
@@ -261,14 +313,14 @@ okey:
 
 #---------------------------------------------------------------------
 # get a hash of the next token
-resolve:
+tick:
         
         bl token
 
 #---------------------------------------------------------------------         
 # search for a hash in dictionary linked list 
 #
-tick:
+find:
 
 # get the latest link
         
@@ -286,7 +338,7 @@ tick:
 
 # move next link 
         
-        ldr lnk, [fst]
+        ldr lnk, [fst, #0]
 
 # move to hash
         
@@ -308,24 +360,24 @@ tick:
 
         bne 100b
 
-#---------------------------------------------------------------------         
-eval:
 # wrd points to or start of code or list of references
 
         adds fst, #CELL
 
+#---------------------------------------------------------------------         
+eval:
 # executing ? if state == 0
         
-        ldr trd, [usr, #STAT]
+        ldr wrd, [usr, #STAT]
         
-        cmp trd, #0
+        cmp wrd, #0
 
         beq execute
 
 .ifdef postpones
 # postpone ? if state < 0
         
-        cmp trd, #0
+        cmp wrd, #0
 
         blt postpone
 .endif
@@ -340,8 +392,13 @@ eval:
 .ifdef postpones
 # reset state to compile
 postpone:
+<<<<<<< HEAD
         addi trd, zero, ONE
         sw trd, [usr, #STAT]
+=======
+        adds wrd, ONE
+        sw wrd, STAT (usr)
+>>>>>>> 0700d3f ( sector compiled ok, need extas now)
 .endif
 
 # compiling ? if state != 0
@@ -349,50 +406,17 @@ compile:
 
         bl docomma
 
-        b resolve
+        b tick
 
 #---------------------------------------------------------------------         
 execute:
 immediate:
 
-        ldr ipt, =resolvept
+        ldr ipt, =tickpt
 
         b pick
 
 zzzz
-#---------------------------------------------------------------------
-# unexpected end of dictionary
-# wipe remains compiled
-# xxx
-
-.ifdef dismiss
-miss:
-miss:
-       	putchar '\n'
-100:
-       	lb fst, 0 (idx)
-       	call _putc
-	beq fst, trd, 100f
-	addi idx, idx, ONE
-	j 100b
-100:
-        putchar ' '
- 	putchar '?'
-
-wipe:
-        # compiling ?
-        ldr fst, [usr, #STAT]
-        cmp fst, #0
-        bne 100f
-
-        # wipe remains
-        ldr fst, [usr, #HEAD]
-        str fst, [usr, #HERE]
-100:
-        b error
-
-.endif 
-
 #---------------------------------------------------------------------
 # in place every token, no rewinds
 # the counter is placed at space before word
@@ -411,7 +435,7 @@ token:
 # skip spaces // trd
 200:
 
-        ldrb snd, [idx]
+        ldrb snd, [idx, #0]
 
         cmp snd, #0
         beq gets
@@ -439,7 +463,7 @@ gets:
 # loop and fill the TIB until \n
 # no test end of buffer 
 300:
-        strb fst, [idx]
+        strb fst, [idx, #0]
         
         adds idx, #ONE
 
@@ -447,13 +471,13 @@ gets:
 
         bl _getc
 
-# echo it
+# echo it, if need
 
-        bl _putc
+        # bl _putc
 
-# 7-bit ascii only 
-# xxx
-        and fst, fst, #127
+# cast to 7-bit ascii only 
+
+        # and fst, fst, #127
 
 # \n ^J ends the line
 
@@ -465,11 +489,11 @@ gets:
 
 # replace \n with space 
         mov fst, #BL
-        strb fst, [idx]
+        strb fst, [idx, #0]
 
 # mark eol with \0
         mov fst, #0
-        strb fst, [idx]
+        strb fst, [idx, #1]
 
         b 100b
 
@@ -490,6 +514,7 @@ djb2:
 .ifdef dismiss
 
 	mov wrd, idx
+
 .endif
 
         # easy 5381
@@ -497,10 +522,10 @@ djb2:
         ldr hsh, =DJB2
 
 100:
-        ldrb fst, [idx]
+        ldrb fst, [idx, #0]
         
         cmp fst, #BL
-        beq 100f
+        beq 200f
 
         mov snd, hsh
 
@@ -514,7 +539,8 @@ djb2:
         
         b 100b
 
-100:    
+#---------------------------------------------------------------------
+200:    
 
 # mask forth flag 
 mask:
@@ -530,7 +556,7 @@ mask:
 
 .ifdef dismiss
 
-        add idx, zero, wrd
+        mov idx, wrd
 
 .endif
 
@@ -570,11 +596,11 @@ pull2:
         
         ldr idx, [usr, #SPTR]
         
-        ldr fst, [idx]
-        
+        ldr fst, [idx, #0]
+
         adds idx, #CELL
 
-        ldr snd, [idx]
+        ldr snd, [idx, #0]
 
         bx lr
 
@@ -602,7 +628,7 @@ def_word "!", "store", hash_store
         
         bl pull2
 
-        str snd, [fst]
+        str snd, [fst, #0]
 
 drop1:
         adds idx, #CELL
@@ -615,7 +641,7 @@ def_word "@", "fetch", hash_fetch
         
         bl pull2
         
-        ldr fst, [fst]
+        ldr fst, [fst, #0]
         
         b back1
 
@@ -626,10 +652,9 @@ def_word "nand", "nand", hash_nand
         bl pull2
 
         and fst, snd
-        neg fst, fst
-        
-        #bic fst, snd
 
+        mvn fst, fst 
+        
         b keep1
 
 #---------------------------------------------------------------------
@@ -663,7 +688,7 @@ istrue:
 # ( -- state ), return an reference
 def_word "u@", "userat", hash_userat
         
-        ldr fst, [usr] 
+        ldr fst, [usr, #0] 
 
 push1:
         ldr idx, [usr, #SPTR]
@@ -672,7 +697,7 @@ back1:
         subs idx, #CELL
 
 keep1:
-        str fst, [idx]
+        str fst, [idx, #0]
 
 save1:
         str idx, [usr, #SPTR]
@@ -711,7 +736,7 @@ create:
 
         mov fst, hsh
 
-finish:
+comma:
 
         bl docomma
 
@@ -735,7 +760,7 @@ def_word ";", "semis", hash_semis
         
         ldr fst, =exit
 
-        b finish
+        b comma
 
 #---------------------------------------------------------------------
 # Minimal Indirect Thread Code Engine
@@ -771,16 +796,21 @@ pick:
         
         ldr idx, =ends
         
-        cmp wrd, idx
+        cmp fst, idx
 
-        blt jump
+        bge nest
+
+jump: 
+# jump to primitive
+        
+        blx fst
 
 nest:   #; enter
 # return push, rp -= cell, (rpt) = ipt
         
         ldr idx, [usr, #RPTR]
         
-        #subs idx, #CELL
+        # subs idx, #CELL
         
         str ipt, [idx, #-CELL]!
         
@@ -789,19 +819,14 @@ nest:   #; enter
 move: 
 # indirect access 
         
-        mov ipt, wrd
+        mov ipt, fst
         
         b next
-
-jump: 
-# jump to primitive
-        
-        blx wrd
 
 #---------------------------------------------------------------------
 # the outer loop, need for indirect
 
-resolvept:
+tickpt:
         
         .word okey
 
@@ -821,7 +846,7 @@ resolvept:
 #----------------------------------------------------------------------
 # keep last entry of primitives
 
-#include "extras-milliforth.S"
+#include "extras-armv6.S"
 
 #----------------------------------------------------------------------
 # keep last entry of extras
@@ -834,8 +859,6 @@ resolvept:
 
 #---------------------------------------------------------------------
 ends:
-
-.word 0xDEADBEEF
 
 .end
 
