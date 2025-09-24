@@ -5,9 +5,7 @@
 .globl putchar
 
 .macro putchar value
-
-        mov a3, #\value
-
+        mov r3, #\value
         bl _putc
 .endm
 
@@ -24,51 +22,45 @@
 #---------------------------------------------------------------------
 # easy it
 #
-.globl mhey
+.globl mhex
 
-.macro mhey rg
-
+.macro mhex rg
         mov r3, \rg
-
         pushra
-
         call saves
-        
         call puthey
-
         call loads
-
         pullra 
-        
 .endm
 
 #---------------------------------------------------------------------
 # code a 32-bit word in ASCII hexadecimal, same as puthex
 #
-.globl putxy
+.globl puthex
 
 puthex:
 
         pushra
 
-        add  s2, zero, a3
+        mov r6, r3
         
-        addi s5, zero, ':'
-
-        addi a3, zero, ' '
+        mov a3, ' '
         
         call _putc
 
-        srli s3, s2, 24
-        call 100f
-        srli s3, s2, 16
-        call 100f
-        srli s3, s2, 8
-        call 100f
-        srli s3, s2, 0
+        srli r5, r6, #24
         call 100f
 
-        add  a3, zero, s2
+        srli r5, r6, #16
+        call 100f
+
+        srli r5, r6, #8
+        call 100f
+
+        srli r5, r6, #0
+        call 100f
+
+        mov r3, r6
 
         pullra
 
@@ -78,12 +70,12 @@ puthex:
 
         pushra 
 
-        andi s3, s3, 0xFF
-        
-        srli s4, s3, 4
+        andi r5, #255
+
+        srli r4, r5, #4
         call 200f
         
-        srli s4, s3, 0
+        srli r4, r5, #0
         call 200f
 
         pullra
@@ -93,12 +85,13 @@ puthex:
 200:
         pushra
 
-        andi s4, s4, 0x0F
-        ori  s4, s4, 48
-        blt  s4, s5, 300f
-        addi s4, s4, 7
+        andi r4, #15
+        ori  r4, #48
+        cmp  r4, ':'
+        blt  300f
+        addi r4, #7
 300:
-        add a3, zero, s4
+        mov r3, r4
 
         call _putc
         

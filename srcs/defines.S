@@ -78,8 +78,6 @@
 # +2147483647
 .equ MASK_IMM, 0x7FFFFFFF
 
-<<<<<<< HEAD
-=======
 #----------------------------------------------------------------------
 # user structure of internal Forth variables
 # accessed as offsets
@@ -108,7 +106,6 @@
 # heap backward
 .equ TAIL, 7 * CELL
 
->>>>>>> 0700d3f ( sector compiled ok, need extas now)
 #---------------------------------------------------------------------
 # primitives djb2 hash cleared of bit 31
 # semis is the unique with FLAG_IMM 
@@ -125,7 +122,4 @@
 .equ hash_semis, 0x8002B59E 
 .equ hash_exit,  0x7C6BBE85 
 
-<<<<<<< HEAD
-=======
 #---------------------------------------------------------------------
->>>>>>> 0700d3f ( sector compiled ok, need extas now)

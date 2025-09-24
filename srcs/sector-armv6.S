@@ -53,8 +53,6 @@
 #include "defines.S"
 
 #---------------------------------------------------------------------
-<<<<<<< HEAD
-=======
 
 # .equ debug, YES
 
@@ -63,7 +61,6 @@
 # .equ postpones, YES
 
 #---------------------------------------------------------------------
->>>>>>> 0700d3f ( sector compiled ok, need extas now)
 # macro to define the header of words in dictionary
 #
 .global def_word
@@ -94,7 +91,6 @@ h_\label:
 .endm
 
 #----------------------------------------------------------------------
-<<<<<<< HEAD
 # user structure of internal Forth variables
 # accessed as offsets
 
@@ -122,7 +118,6 @@ h_\label:
 # heap backward
 .equ TAIL, 7 * CELL
 
-=======
 # easy pretty print one char
 #
 .global putchar
@@ -131,7 +126,7 @@ h_\label:
        mov a3, #\value
        bl _putc
 .endm
->>>>>>> 0700d3f ( sector compiled ok, need extas now)
+
 #----------------------------------------------------------------------
 .section .data
 
@@ -141,10 +136,7 @@ h_\label:
 .section .bss
 .p2align 2, 0x0
 
-<<<<<<< HEAD
 #----------------------------------------------------------------------
-=======
->>>>>>> 0700d3f ( sector compiled ok, need extas now)
 # This is it
 
 _user:
@@ -392,13 +384,10 @@ eval:
 .ifdef postpones
 # reset state to compile
 postpone:
-<<<<<<< HEAD
         addi trd, zero, ONE
         sw trd, [usr, #STAT]
-=======
         adds wrd, ONE
         sw wrd, STAT (usr)
->>>>>>> 0700d3f ( sector compiled ok, need extas now)
 .endif
 
 # compiling ? if state != 0
@@ -416,7 +405,7 @@ immediate:
 
         b pick
 
-zzzz
+# zzzz
 #---------------------------------------------------------------------
 # in place every token, no rewinds
 # the counter is placed at space before word
@@ -840,16 +829,27 @@ tickpt:
 # any other primitives after exit
 #---------------------------------------------------------------------
 
+.ifdef debug
+
 .equ EXTRAS, YES
 
-.ifdef EXTRAS
 #----------------------------------------------------------------------
-# keep last entry of primitives
+.ifdef EXTRAS
+
+.set into_extras, h_exit
 
 #include "extras-armv6.S"
 
+.set h_last, from_extras
+
+.endif
+
+.endif
+
 #----------------------------------------------------------------------
-# keep last entry of extras
+.ifndef EXTRAS
+
+.set h_last, h_exit
 
 .endif
 
@@ -857,8 +857,10 @@ tickpt:
 # Beware, ends must be at last word in primitive ditionary !
 #---------------------------------------------------------------------
 
-#---------------------------------------------------------------------
 ends:
 
+# .word 0xDEADBEEF
+
+#---------------------------------------------------------------------
 .end
 
