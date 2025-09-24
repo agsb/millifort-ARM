@@ -17,7 +17,7 @@ No human WORDS. The IMMEDIATE flag is the MSBit (31) of hash.
 
 Options:
 
-    compiler suit of RISCV: gcc riscv64-unknown-elf-* -Oz
+    compiler suit of RISCV: gcc arm-unknown-elf-* -Oz
 
     which memory map be used and pages size: default GCC
   
