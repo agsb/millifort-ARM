@@ -123,7 +123,7 @@ _rets:
 .set FORTH_SIZE, 65536
 
 _sbrk:
-        mov r1, #0
+        mov r0, #0
         mov r7, #_SBRK
         swi #0
         

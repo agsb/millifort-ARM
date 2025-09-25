@@ -1,0 +1,463 @@
+
+sector-armv6.elf:     file format elf32-littlearm
+sector-armv6.elf
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .note.gnu.build-id 00000024  00010094  00010094  00000094  2**2
+                  CONTENTS, ALLOC, LOAD, READONLY, DATA
+  1 .text         00000308  000100b8  000100b8  000000b8  2**2
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  2 .bss          000001c0  000113c0  000113c0  000003c0  2**2
+                  ALLOC
+  3 .ARM.attributes 00000019  00000000  00000000  000003c0  2**0
+                  CONTENTS, READONLY
+SYMBOL TABLE:
+00010094 l    d  .note.gnu.build-id	00000000 .note.gnu.build-id
+000100b8 l    d  .text	00000000 .text
+000113c0 l    d  .bss	00000000 .bss
+00000000 l    d  .ARM.attributes	00000000 .ARM.attributes
+00000000 l    df *ABS*	00000000 ccqL1YCk.o
+00000000 l       *ABS*	00000000 FALSE
+ffffffff l       *ABS*	00000000 TRUE
+00000001 l       *ABS*	00000000 ONE
+00000002 l       *ABS*	00000000 TWO
+00000004 l       *ABS*	00000000 CELL
+0000000a l       *ABS*	00000000 NL
+0000000d l       *ABS*	00000000 CR
+00000020 l       *ABS*	00000000 BL
+00000090 l       *ABS*	00000000 spz
+00000090 l       *ABS*	00000000 rpz
+00000050 l       *ABS*	00000000 tibz
+00000030 l       *ABS*	00000000 padz
+80000000 l       *ABS*	00000000 FLAG_IMM
+7fffffff l       *ABS*	00000000 MASK_IMM
+00000000 l       *ABS*	00000000 SPTR
+00000004 l       *ABS*	00000000 RPTR
+00000008 l       *ABS*	00000000 LAST
+0000000c l       *ABS*	00000000 HERE
+00000010 l       *ABS*	00000000 TOIN
+00000014 l       *ABS*	00000000 STAT
+00000018 l       *ABS*	00000000 HEAD
+0000001c l       *ABS*	00000000 TAIL
+0b876d32 l       *ABS*	00000000 hash_key
+7c6b87d0 l       *ABS*	00000000 hash_emit
+0002b584 l       *ABS*	00000000 hash_store
+0002b5e5 l       *ABS*	00000000 hash_fetch
+7c727500 l       *ABS*	00000000 hash_nand
+0002b58e l       *ABS*	00000000 hash_plus
+00596816 l       *ABS*	00000000 hash_notzero
+00596f90 l       *ABS*	00000000 hash_userat
+0002b59f l       *ABS*	00000000 hash_colon
+8002b59e l       *ABS*	00000000 hash_semis
+7c6bbe85 l       *ABS*	00000000 hash_exit
+00010308 l       .text	00000000 h_last
+000113c0 l       .bss	00000000 _user
+000113e0 l       .bss	00000000 _pack
+00011400 l       .bss	00000000 _spb
+00011490 l       .bss	00000000 sp0
+00011494 l       .bss	00000000 _rpb
+00011524 l       .bss	00000000 rp0
+00011528 l       .bss	00000000 _tib
+00011578 l       .bss	00000000 h_here
+000100b8 l       .text	00000000 init
+000100b8 l       .text	00000000 cold
+000100bc l       .text	00000000 warm
+000100cc l       .text	00000000 reset
+000100d4 l       .text	00000000 miss
+000100d4 l       .text	00000000 error
+000100d4 l       .text	00000000 abort
+000100dc l       .text	00000000 quit
+000100ec l       .text	00000000 okey
+000100ec l       .text	00000000 tick
+00010148 l       .text	00000000 token
+000100f0 l       .text	00000000 find
+00010124 l       .text	00000000 eval
+00010140 l       .text	00000000 execute
+00010140 l       .text	00000000 immediate
+00010138 l       .text	00000000 compile
+000101d8 l       .text	00000000 docomma
+00010348 l       .text	00000000 tickpt
+00010324 l       .text	00000000 pick
+0001016c l       .text	00000000 gets
+000101a0 l       .text	00000000 hash
+0001035c l       .text	00000000 _getc
+00001505 l       *ABS*	00000000 DJB2
+00000005 l       *ABS*	00000000 SFHT
+000101a0 l       .text	00000000 djb2
+000101c8 l       .text	00000000 mask
+000101ec l       .text	00000000 pull2
+00010200 l       .text	00000000 h_key
+00010208 l       .text	00000000 key
+000102a4 l       .text	00000000 push1
+00010210 l       .text	00000000 h_emit
+00010218 l       .text	00000000 emit
+0001037c l       .text	00000000 _putc
+000102b0 l       .text	00000000 save1
+00010224 l       .text	00000000 h_store
+0001022c l       .text	00000000 store
+00010234 l       .text	00000000 drop1
+0001023c l       .text	00000000 h_fetch
+00010244 l       .text	00000000 fetch
+000102a8 l       .text	00000000 back1
+00010250 l       .text	00000000 h_nand
+00010258 l       .text	00000000 nand
+000102ac l       .text	00000000 keep1
+00010268 l       .text	00000000 h_plus
+00010270 l       .text	00000000 plus
+0001027c l       .text	00000000 h_zeroq
+00010284 l       .text	00000000 zeroq
+00010288 l       .text	00000000 isfalse
+0001031c l       .text	00000000 next
+00010290 l       .text	00000000 istrue
+00010298 l       .text	00000000 h_userat
+000102a0 l       .text	00000000 userat
+000102b8 l       .text	00000000 h_colon
+000102c0 l       .text	00000000 colon
+000102d0 l       .text	00000000 create
+000102e0 l       .text	00000000 comma
+000102e8 l       .text	00000000 h_semis
+000102f0 l       .text	00000000 semis
+00010310 l       .text	00000000 exit
+00010308 l       .text	00000000 h_exit
+00010310 l       .text	00000000 unnest
+00010398 l       .text	00000000 ends
+00010334 l       .text	00000000 nest
+00010330 l       .text	00000000 jump
+00010340 l       .text	00000000 move
+00000000 l       *ABS*	00000000 _ZERO
+00000001 l       *ABS*	00000000 _ONE
+00000000 l       *ABS*	00000000 _STDIN
+00000001 l       *ABS*	00000000 _STDOUT
+0000002d l       *ABS*	00000000 _SBRK
+0000003f l       *ABS*	00000000 _GETC
+00000040 l       *ABS*	00000000 _PUTC
+0000005d l       *ABS*	00000000 _EXIT
+0001157c l       .bss	00000000 _char
+0001034c l       .text	00000000 _exit
+00010358 l       .text	00000000 _init
+00010390 l       .text	00000000 _rets
+00011580 g       .bss	00000000 _bss_end__
+000113c0 g       .bss	00000000 __bss_start__
+00011580 g       .bss	00000000 __bss_end__
+000100b8 g       .text	00000000 _start
+000113c0 g       .bss	00000000 __bss_start
+00011580 g       .bss	00000000 __end__
+000113c0 g       .bss	00000000 _edata
+00011580 g       .bss	00000000 _end
+
+
+
+Disassembly of section .text:
+
+000100b8 <_start>:
+   100b8:	e59f72d8 	ldr	r7, [pc, #728]	@ 10398 <ends>
+
+000100bc <warm>:
+   100bc:	e59f42d8 	ldr	r4, [pc, #728]	@ 1039c <ends+0x4>
+   100c0:	e587400c 	str	r4, [r7, #12]
+   100c4:	e3a04000 	mov	r4, #0
+   100c8:	e5874008 	str	r4, [r7, #8]
+
+000100cc <reset>:
+   100cc:	e59f42cc 	ldr	r4, [pc, #716]	@ 103a0 <ends+0x8>
+   100d0:	e5874010 	str	r4, [r7, #16]
+
+000100d4 <abort>:
+   100d4:	e59f42c8 	ldr	r4, [pc, #712]	@ 103a4 <ends+0xc>
+   100d8:	e5874000 	str	r4, [r7]
+
+000100dc <quit>:
+   100dc:	e59f42c4 	ldr	r4, [pc, #708]	@ 103a8 <ends+0x10>
+   100e0:	e5874004 	str	r4, [r7, #4]
+   100e4:	e3a04000 	mov	r4, #0
+   100e8:	e5874014 	str	r4, [r7, #20]
+
+000100ec <okey>:
+   100ec:	eb000015 	bl	10148 <token>
+
+000100f0 <find>:
+   100f0:	e5972008 	ldr	r2, [r7, #8]
+   100f4:	e3520000 	cmp	r2, #0
+   100f8:	0afffff5 	beq	100d4 <abort>
+   100fc:	e1a04002 	mov	r4, r2
+   10100:	e5942000 	ldr	r2, [r4]
+   10104:	e2944004 	adds	r4, r4, #4
+   10108:	e5943000 	ldr	r3, [r4]
+   1010c:	e3a05102 	mov	r5, #-2147483648	@ 0x80000000
+   10110:	e0155003 	ands	r5, r5, r3
+   10114:	e0233005 	eor	r3, r3, r5
+   10118:	e1510003 	cmp	r1, r3
+   1011c:	1afffff4 	bne	100f4 <find+0x4>
+   10120:	e2944004 	adds	r4, r4, #4
+
+00010124 <eval>:
+   10124:	e5973014 	ldr	r3, [r7, #20]
+   10128:	e3530000 	cmp	r3, #0
+   1012c:	0a000003 	beq	10140 <execute>
+   10130:	e3550000 	cmp	r5, #0
+   10134:	1a000001 	bne	10140 <execute>
+
+00010138 <compile>:
+   10138:	eb000026 	bl	101d8 <docomma>
+   1013c:	eaffffea 	b	100ec <okey>
+
+00010140 <execute>:
+   10140:	e59f6264 	ldr	r6, [pc, #612]	@ 103ac <ends+0x14>
+   10144:	ea000076 	b	10324 <pick>
+
+00010148 <token>:
+   10148:	e92d4008 	push	{r3, lr}
+   1014c:	e5970010 	ldr	r0, [r7, #16]
+   10150:	e5d05000 	ldrb	r5, [r0]
+   10154:	e3550000 	cmp	r5, #0
+   10158:	0a000003 	beq	1016c <gets>
+   1015c:	e3550020 	cmp	r5, #32
+   10160:	1a00000e 	bne	101a0 <djb2>
+   10164:	e2900001 	adds	r0, r0, #1
+   10168:	eafffff8 	b	10150 <token+0x8>
+
+0001016c <gets>:
+   1016c:	e59f022c 	ldr	r0, [pc, #556]	@ 103a0 <ends+0x8>
+   10170:	e5870010 	str	r0, [r7, #16]
+   10174:	e3a04020 	mov	r4, #32
+   10178:	e5c04000 	strb	r4, [r0]
+   1017c:	e2900001 	adds	r0, r0, #1
+   10180:	eb000075 	bl	1035c <_getc>
+   10184:	e354000a 	cmp	r4, #10
+   10188:	1afffffa 	bne	10178 <gets+0xc>
+   1018c:	e3a04020 	mov	r4, #32
+   10190:	e5c04000 	strb	r4, [r0]
+   10194:	e3a04000 	mov	r4, #0
+   10198:	e5c04001 	strb	r4, [r0, #1]
+   1019c:	eaffffea 	b	1014c <token+0x4>
+
+000101a0 <djb2>:
+   101a0:	e59f1208 	ldr	r1, [pc, #520]	@ 103b0 <ends+0x18>
+   101a4:	e5d04000 	ldrb	r4, [r0]
+   101a8:	e3540020 	cmp	r4, #32
+   101ac:	0a000005 	beq	101c8 <mask>
+   101b0:	e1a05001 	mov	r5, r1
+   101b4:	e1a01281 	lsl	r1, r1, #5
+   101b8:	e0811005 	add	r1, r1, r5
+   101bc:	e0211004 	eor	r1, r1, r4
+   101c0:	e2900001 	adds	r0, r0, #1
+   101c4:	eafffff6 	b	101a4 <djb2+0x4>
+
+000101c8 <mask>:
+   101c8:	e3e04102 	mvn	r4, #-2147483648	@ 0x80000000
+   101cc:	e0011004 	and	r1, r1, r4
+   101d0:	e5870010 	str	r0, [r7, #16]
+   101d4:	e8bd8008 	pop	{r3, pc}
+
+000101d8 <docomma>:
+   101d8:	e597000c 	ldr	r0, [r7, #12]
+   101dc:	e5804000 	str	r4, [r0]
+   101e0:	e2900004 	adds	r0, r0, #4
+   101e4:	e587000c 	str	r0, [r7, #12]
+   101e8:	e12fff1e 	bx	lr
+
+000101ec <pull2>:
+   101ec:	e5970000 	ldr	r0, [r7]
+   101f0:	e5904000 	ldr	r4, [r0]
+   101f4:	e2900004 	adds	r0, r0, #4
+   101f8:	e5905000 	ldr	r5, [r0]
+   101fc:	e12fff1e 	bx	lr
+
+00010200 <h_key>:
+   10200:	00000000 	.word	0x00000000
+   10204:	0b876d32 	.word	0x0b876d32
+
+00010208 <key>:
+   10208:	eb000053 	bl	1035c <_getc>
+   1020c:	ea000024 	b	102a4 <push1>
+
+00010210 <h_emit>:
+   10210:	00010200 	.word	0x00010200
+   10214:	7c6b87d0 	.word	0x7c6b87d0
+
+00010218 <emit>:
+   10218:	ebfffff3 	bl	101ec <pull2>
+   1021c:	eb000056 	bl	1037c <_putc>
+   10220:	ea000022 	b	102b0 <save1>
+
+00010224 <h_store>:
+   10224:	00010210 	.word	0x00010210
+   10228:	0002b584 	.word	0x0002b584
+
+0001022c <store>:
+   1022c:	ebffffee 	bl	101ec <pull2>
+   10230:	e5845000 	str	r5, [r4]
+
+00010234 <drop1>:
+   10234:	e2900004 	adds	r0, r0, #4
+   10238:	ea00001c 	b	102b0 <save1>
+
+0001023c <h_fetch>:
+   1023c:	00010224 	.word	0x00010224
+   10240:	0002b5e5 	.word	0x0002b5e5
+
+00010244 <fetch>:
+   10244:	ebffffe8 	bl	101ec <pull2>
+   10248:	e5944000 	ldr	r4, [r4]
+   1024c:	ea000015 	b	102a8 <back1>
+
+00010250 <h_nand>:
+   10250:	0001023c 	.word	0x0001023c
+   10254:	7c727500 	.word	0x7c727500
+
+00010258 <nand>:
+   10258:	ebffffe3 	bl	101ec <pull2>
+   1025c:	e0044005 	and	r4, r4, r5
+   10260:	e1e04004 	mvn	r4, r4
+   10264:	ea000010 	b	102ac <keep1>
+
+00010268 <h_plus>:
+   10268:	00010250 	.word	0x00010250
+   1026c:	0002b58e 	.word	0x0002b58e
+
+00010270 <plus>:
+   10270:	ebffffdd 	bl	101ec <pull2>
+   10274:	e0844005 	add	r4, r4, r5
+   10278:	ea00000b 	b	102ac <keep1>
+
+0001027c <h_zeroq>:
+   1027c:	00010268 	.word	0x00010268
+   10280:	00596816 	.word	0x00596816
+
+00010284 <zeroq>:
+   10284:	ebffffd8 	bl	101ec <pull2>
+
+00010288 <isfalse>:
+   10288:	e3540000 	cmp	r4, #0
+   1028c:	0a000022 	beq	1031c <next>
+
+00010290 <istrue>:
+   10290:	e3e04000 	mvn	r4, #0
+   10294:	ea000003 	b	102a8 <back1>
+
+00010298 <h_userat>:
+   10298:	0001027c 	.word	0x0001027c
+   1029c:	00596f90 	.word	0x00596f90
+
+000102a0 <userat>:
+   102a0:	e5974000 	ldr	r4, [r7]
+
+000102a4 <push1>:
+   102a4:	e5970000 	ldr	r0, [r7]
+
+000102a8 <back1>:
+   102a8:	e2500004 	subs	r0, r0, #4
+
+000102ac <keep1>:
+   102ac:	e5804000 	str	r4, [r0]
+
+000102b0 <save1>:
+   102b0:	e5870000 	str	r0, [r7]
+   102b4:	ea000018 	b	1031c <next>
+
+000102b8 <h_colon>:
+   102b8:	00010298 	.word	0x00010298
+   102bc:	0002b59f 	.word	0x0002b59f
+
+000102c0 <colon>:
+   102c0:	e597400c 	ldr	r4, [r7, #12]
+   102c4:	e5874018 	str	r4, [r7, #24]
+   102c8:	e3a04001 	mov	r4, #1
+   102cc:	e5874014 	str	r4, [r7, #20]
+
+000102d0 <create>:
+   102d0:	e5974008 	ldr	r4, [r7, #8]
+   102d4:	ebffffbf 	bl	101d8 <docomma>
+   102d8:	ebffff9a 	bl	10148 <token>
+   102dc:	e1a04001 	mov	r4, r1
+
+000102e0 <comma>:
+   102e0:	ebffffbc 	bl	101d8 <docomma>
+   102e4:	ea00000c 	b	1031c <next>
+
+000102e8 <h_semis>:
+   102e8:	000102b8 	.word	0x000102b8
+   102ec:	8002b59e 	.word	0x8002b59e
+
+000102f0 <semis>:
+   102f0:	e5974018 	ldr	r4, [r7, #24]
+   102f4:	e5874008 	str	r4, [r7, #8]
+   102f8:	e3a04000 	mov	r4, #0
+   102fc:	e5874014 	str	r4, [r7, #20]
+   10300:	e59f40ac 	ldr	r4, [pc, #172]	@ 103b4 <ends+0x1c>
+   10304:	eafffff5 	b	102e0 <comma>
+
+00010308 <h_exit>:
+   10308:	000102e8 	.word	0x000102e8
+   1030c:	7c6bbe85 	.word	0x7c6bbe85
+
+00010310 <exit>:
+   10310:	e5970004 	ldr	r0, [r7, #4]
+   10314:	e4906004 	ldr	r6, [r0], #4
+   10318:	e5870004 	str	r0, [r7, #4]
+
+0001031c <next>:
+   1031c:	e5963000 	ldr	r3, [r6]
+   10320:	e2966004 	adds	r6, r6, #4
+
+00010324 <pick>:
+   10324:	e59f008c 	ldr	r0, [pc, #140]	@ 103b8 <ends+0x20>
+   10328:	e1540000 	cmp	r4, r0
+   1032c:	aa000000 	bge	10334 <nest>
+
+00010330 <jump>:
+   10330:	e12fff34 	blx	r4
+
+00010334 <nest>:
+   10334:	e5970004 	ldr	r0, [r7, #4]
+   10338:	e5206004 	str	r6, [r0, #-4]!
+   1033c:	e5870004 	str	r0, [r7, #4]
+
+00010340 <move>:
+   10340:	e1a06004 	mov	r6, r4
+   10344:	eafffff4 	b	1031c <next>
+
+00010348 <tickpt>:
+   10348:	000100ec 	.word	0x000100ec
+
+0001034c <_exit>:
+   1034c:	e3a00000 	mov	r0, #0
+   10350:	e3a0705d 	mov	r7, #93	@ 0x5d
+   10354:	ef000000 	svc	0x00000000
+
+00010358 <_init>:
+   10358:	e12fff1e 	bx	lr
+
+0001035c <_getc>:
+   1035c:	e3a00000 	mov	r0, #0
+   10360:	e59f1054 	ldr	r1, [pc, #84]	@ 103bc <ends+0x24>
+   10364:	e3a02001 	mov	r2, #1
+   10368:	e3a0703f 	mov	r7, #63	@ 0x3f
+   1036c:	ef000000 	svc	0x00000000
+   10370:	e3500000 	cmp	r0, #0
+   10374:	0afffff4 	beq	1034c <_exit>
+   10378:	e5d13000 	ldrb	r3, [r1]
+
+0001037c <_putc>:
+   1037c:	e3a00001 	mov	r0, #1
+   10380:	e59f1034 	ldr	r1, [pc, #52]	@ 103bc <ends+0x24>
+   10384:	e3a02001 	mov	r2, #1
+   10388:	e3a07040 	mov	r7, #64	@ 0x40
+   1038c:	e5c13000 	strb	r3, [r1]
+
+00010390 <_rets>:
+   10390:	ef000000 	svc	0x00000000
+   10394:	e12fff1e 	bx	lr
+
+00010398 <ends>:
+   10398:	000113c0 	.word	0x000113c0
+   1039c:	00011578 	.word	0x00011578
+   103a0:	00011528 	.word	0x00011528
+   103a4:	00011490 	.word	0x00011490
+   103a8:	00011524 	.word	0x00011524
+   103ac:	00010348 	.word	0x00010348
+   103b0:	00001505 	.word	0x00001505
+   103b4:	00010310 	.word	0x00010310
+   103b8:	00010398 	.word	0x00010398
+   103bc:	0001157c 	.word	0x0001157c
