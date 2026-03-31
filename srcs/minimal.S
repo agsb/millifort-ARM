@@ -33,7 +33,8 @@
 #---------------------------------------------------------------------
 
  Note: 
-        Use for Cortex-M0, Armv6-M, RP2040 is little-endian
+
+        CPU: Cortex-M0, Armv6-M, RP2040 is little-endian
 
         R0-R12, generic use
         
