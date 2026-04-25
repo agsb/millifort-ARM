@@ -44,6 +44,25 @@ Focus in Raspberry PI 3 B, Cortex-A53, ARMv8, but using 32-bit ISA.
 
 The milliForth is a program called by 'elsewhere alien operational system', and use registers ????. 
 
+## RP2040
+
+Key Components for RP2040 Cross-Compilation
+
+Compiler: arm-none-eabi-gcc
+Target CPU: -mcpu=cortex-m0plus
+Architecture: -march=armv6s-m
+QEMU Command: qemu-system-arm -machine raspi0 -kernel your_binary.elf -nographic
+
+bash: 
+
+sudo apt install gcc-arm-none-eabi binutils-arm-none-eabi
+
+arm-none-eabi-gcc -c -mcpu=cortex-m0plus -march=armv6s-m -mthumb --specs=nosys.specs -o main.o main.c
+
+arm-none-eabi-gcc -mcpu=cortex-m0plus -march=armv6s-m -mthumb --specs=nosys.specs -T linker_script.ld -o main.elf main.o
+
+qemu-system-arm -machine raspi0 -cpu cortex-m0plus -kernel main.elf -nographic
+
 ## Coding
 
 For assembler, use gcc style with pre-processor directives eg. #define.
