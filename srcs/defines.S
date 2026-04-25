@@ -1,3 +1,24 @@
+/*
+#---------------------------------------------------------------------
+ 
+  Copyright 2025 Alvaro Gomes Sobral Barcellos <@agsb>
+ 
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 2 of the License, or
+  (at your option) any later version.
+ 
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+ 
+  You should have received a copy of the GNU General Public License
+  along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+#----------------------------------------------------------------------
+*/
+
 #---------------------------------------------------------------------
 # max size of dictionary 64k CELLS  
 # depends on host machine
@@ -27,51 +48,9 @@
 
 .equ CELL, 4
 
-# ascii
+.equ BL, 32    
 
-.equ XON, 17   #  ^Q
-.equ XOFF, 19  #  ^S
-
-.equ ACK, 6    #  ^F
-.equ NAK, 21   #  ^U
-
-.equ BS, 8     # \b ^H
-
-.equ HT, 9     # \t ^I
-
-.equ LF, 10    # \n ^J
-
-.equ CR, 13    # \r ^M
-
-.equ CAN, 24   #    ^X
-
-.equ ESC, 27   #    ^[
-
-.equ BL, 32    # blank space
-
-# Moore uses 22 deep stacks
-
-.equ stacks, 36
-
-# data stack,  
-
-.equ spz, stacks * CELL
-
-# return stack,  
-
-.equ rpz, stacks * CELL
-
-# Terminal input buffer 80 bytes, (but 72 is enough), moves forwards
-
-.equ tibz, 80
-
-# PAD for temporary formating etc
-
-.equ padz, 84
-
-# PIC for numeric formating etc, (2*32)+4
-
-.equ picz, 64+4 
+.equ QU, 34    
 
 # highlander, immediate flag, unique NaN 
 
@@ -80,6 +59,18 @@
 
 # +2147483647
 .equ MASK_IMM, 0x7FFFFFFF
+
+# Moore uses 22 deep stacks
+
+.equ stacks, 36 
+
+# data stack
+
+.equ sp_size, stacks * CELL
+
+# return stack  
+
+.equ rp_size, stacks * CELL
 
 #---------------------------------------------------------------------
 # the order must be preserved, same in source. 
@@ -96,102 +87,79 @@
 .equ LAST, 2 * CELL
 
 # next free cell in heap dictionary, aka dpt
-.equ HERE, 3 * CELL
-
-# toin next free byte in TIB
-.equ TOIN, 4 * CELL
-
-# terminal (source) input buffer
-.equ TIBS, 5 * CELL
+.equ HEAP, 3 * CELL
 
 # state flag
-.equ STAT, 6 * CELL
+.equ STAT, 4 * CELL
+
+#---------------------------------------------------------------------
+# base flag
+.equ BASE, 5 * CELL
+
+#---------------------------------------------------------------------
+# reserved internals
+
+# last heap while compiling
+.equ FAUX, 6 * CELL
+
+#---------------------------------------------------------------------
+# not initialized
+
+# first absolute free cell, DICTIONARY__INIT 
+.equ HEAD, 7 * CELL
+
+# last absolute free cell, RAM_LIMIT
+.equ TAIL, 8 * CELL
+
+#---------------------------------------------------------------------
+# for counters
 
 # counter of words executed by next
-.equ BEAT, 7 * CELL
+.equ BEAT, 9 * CELL
 
-# counter of words executed by next
-.equ TICK, 8 * CELL
+# counter of primitives executed 
+.equ TICK, 10 * CELL
 
-# heap forward
-.equ HEAD, 9 * CELL
-
-# heap backward
-.equ TAIL, 10 * CELL
-
-# void 
-.equ VOID, 11 * CELL
+# counter of compiled executed 
+.equ TACK, 11 * CELL
 
 #---------------------------------------------------------------------
-# reserve for above 
+# scratch temporary 
 
-.equ PARAMS, 12 
+.equ TEMP1, 12 * CELL
 
-.equ LOCALS, 8
+.equ TEMP2, 13 * CELL
 
-#---------------------------------------------------------------------
-# primitives djb2 hash cleared of bit 31
-#
-#---------------------------------------------------------------------
-# symbols ! @ + 0# : ;
-.equ hash_store, 0x0002B584 
-.equ hash_fetch, 0x0002B5E5 
-.equ hash_plus,  0x0002B58E 
-.equ hash_zeroq, 0x00596816 
-.equ hash_colon, 0x0002B59F 
+.equ TEMP3, 14 * CELL
 
-#---------------------------------------------------------------------
-.equ hash_semis, 0x8002B59E # unique with FLAG_IMM 
+.equ TEMP4, 15 * CELL
 
-#---------------------------------------------------------------------
-# lowercase
-.equ hash_key,   0x0B876D32 
-.equ hash_emit,  0x7C6B87D0 
-.equ hash_exit,  0x7C6BBE85 
-.equ hash_nand,  0x7C727500 
-.equ hash_userat, 0x00596F90
+# user parameter stack: sp rp last heap state base
+# internal: faux head tail beat tick tack
+# temporay: temp1, temp2, temp3, temp4
 
-#---------------------------------------------------------------------
-# uppercase
-.equ hash_KEY,   0x0B87F112
-.equ hash_EMIT,  0x7C7C87D0
-.equ hash_EXIT,  0x7C7CC745
-.equ hash_NAND,  0x7C8254C0
-.equ hash_USERAT, 0x005973B0
+.equ params, 16
+
+# user stack
+
+.equ user_size, params * CELL
 
 #---------------------------------------------------------------------
 # flags for compiler options
 
- .equ debug, YES
- 
+/* 
+
  .equ extras, YES
- 
- .equ maths, YES
 
-/*
- 
- .equ dismiss, YES
+ .equ tools, YES
 
+ .equ primitives, YES
+
+# enable clean if try compile a missed word 
+ .equ missme, YES
+
+# enable counters of words executed
  .equ beatme, YES
-
- .equ tickme, YES
-
- .equ linedit, YES
-
- .equ onlyascii, YES
-
- # default is mixed case
-
- # .equ uppercase, YES
- 
- # .equ lowercase, YES
 
 */
 
-#---------------------------------------------------------------------
-# 
-
-#include "registers.S"
-
-#
-#---------------------------------------------------------------------

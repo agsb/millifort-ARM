@@ -20,9 +20,11 @@
 */
 
 /*
-    A MilliForth for ARMV6 
+#----------------------------------------------------------------------
+
+    A MilliForth for Cortex-M0
  
-    original for the ARMV6, by Alvaro G. S. Barcellos, 2025
+    original for the Cortex-M0, by Alvaro G. S. Barcellos, 2025
  
     https://github.com/agsb 
 
@@ -30,146 +32,116 @@
  
     read notes in this repository.
  
-    THIS VERSION USES ONLY HASH HEADERS.
+    Stacks moves backwards, decrease then push, pull then increase.
 
-    Stacks moves backwards, decrease and push, pull and increase.
+    Made for a little endian Cortex-M0, cell size of 4 bytes, 32-bit
 
-    Made for a little endian, cell size of 4 bytes, 32-bit
+    This version relies on the .text, .rodata, .data, .bss sections 
+    being in this order, the dictionary continues at .bss.
 
-    This version relies on the .data, .text, .rodata, .bss sections 
-    being in this order, the dictionary will continue at end of .bss.
+        THIS VERSION USES ONLY HASH HEADERS. NO NAMES, NO SIZES
 
-    Not working yet :)
+        THIS VERSION USES STREAMS. NO TIB, NO LINES, NO CONTROLS
 
+        USE ONLY ASCII TOKENS IN MIXED CASE AND BETWEEN SPACES
+
+#----------------------------------------------------------------------
 */
 
 #---------------------------------------------------------------------
-# using pre-processor CPP (GNU GCC)
-# for alias register names 
-# beware about changes
-# r3, r0, r1, r2, r7 are used by ecalls in _putc and _getc
-# r4, r5, r6 are generics
-
-#include "defines.S"
-
+# using pre-processor CPP (GNU GCC) for alias names 
 #---------------------------------------------------------------------
 
-# .equ debug, YES
+#include "registers.S" 
 
-# .equ dismiss, YES
-
-# .equ postpones, YES
+#include "defines.S"
 
 #---------------------------------------------------------------------
 # macro to define the header of words in dictionary
 #
 .global def_word
 
-.set h_last, 0
-
-.macro def_word name, label, hash
-.p2align 2, 0x0
-h_\label:
-        .int h_last
+.macro def_word name, label, hash, last
+it_\label:
+        .word \last
         .word \hash
-\label:
-        .set h_last, h_\label
+is_\label:
 .endm
 
 #---------------------------------------------------------------------
-# for deep, more than one, nested calls
-# also does return
-#
-.global pushra
-.macro pushra
-        push { r3, lr }
+# Riscv does not have automatic, and hidden, SP push/pull
+# for two level nested calls, use save_ra and load_ra
+# ever use as macro
+
+# one deep
+
+.macro  save_ra
+        mv lrk, lr
 .endm
 
-.global pullra
-.macro pullra
-        pop { r3, pc }
-.endm
-
-#----------------------------------------------------------------------
-# user structure of internal Forth variables
-# accessed as offsets
-
-# data stack index
-.equ SPTR, 0 * CELL
-
-# return stack index
-.equ RPTR, 1 * CELL 
-
-# last link cell in heap dictionary linked list
-.equ LAST, 2 * CELL
-
-# next free cell in heap dictionary, aka dpt
-.equ HERE, 3 * CELL
-
-# toin next free byte in TIB
-.equ TOIN, 4 * CELL
-
-# state flag
-.equ STAT, 5 * CELL
-
-# heap forward
-.equ HEAD, 6 * CELL
-
-# heap backward
-.equ TAIL, 7 * CELL
-
-# easy pretty print one char
-#
-.global putchar
-
-.macro putchar value
-       mov a3, #\value
-       bl _putc
+.macro  load_ra
+        mv lr, lrk
 .endm
 
 #----------------------------------------------------------------------
+# Nothing here, void.
 .section .data
+.p2align 2, 0x0
+
+.word 0xFEEDCAFE
 
 # There is no spoon.
 
 #----------------------------------------------------------------------
+# but always in RAM :)
 .section .bss
 .p2align 2, 0x0
 
-#----------------------------------------------------------------------
-# This is it
+# void at top of bss 
+void: 
+        .word 0x0
 
+# all forth variables and stacks by offset of _user
+# beware change offsets
+
+# user stack of parameter, for offsets vide defines.S
 _user:
-# user parameter offsets
-.skip 8 * CELL
+.skip user_size
 
-# scratch workspace, generic use. 
-_pack:
-.skip 8 * CELL
+# data stack grows backward, bottom 
+_spz:
+.skip sp_size
+_sp0: 
+        # top of data stack, keep
+        .word 0x0
 
-# data stack grows backward
-_spb:       # bottom 
-.skip spz
-sp0: .word 0x0
+# return stack grows backward, bottom
+_rpz:
+.skip rp_size
+_rp0: 
+        # top of return stack, keep
+        .word 0x0
 
-# return stack grows backward
-_rpb:       # bottom
-.skip rpz
-rp0: .word 0x0
+#----------------------------------------------------------------------
+# NOTE:
+# user_size + sp_size + rp_size must be less than 1024 bytes
+# because code uses addi (+12bits) to setup offset address
+#----------------------------------------------------------------------
 
-# tib grows forward
-_tib:       
-.skip tibz
-
-# start of user dictionary 
-h_here: .word 0x0
+# user dictionary 
+# at start of memory
+h_where: 
+.skip RAM_LIMIT - ( h_where - _user )
+# to end of  memory
+h_there:
 
 #----------------------------------------------------------------------
 .text 
 .p2align 2, 0x0
 
+#---------------------------------------------------------------------
 # xxx
-.ifdef debug
+.ifdef tools
 
 #include "puthex.S"
 
@@ -178,688 +150,446 @@ h_here: .word 0x0
 #----------------------------------------------------------------------
 .globl _start
 
+#.p2align 4, 0x00
+
 _start:
 
 #----------------------------------------------------------------------
-# do any system inits
-init:
-# just for sake
+# go ! go ! go !
+main:
 
-        # bl _init
+# do any system initializations
+# call _init
+
+#include "syscalls.S"
 
 #----------------------------------------------------------------------
 # do what need be only once
 cold:
-# load user pointer address
+# load constant pointer address
 
-        ldr usr, =_user
+        ldr usr, #_user
+
+        ldr nib, #_nibs
         
+        ldr bow, #is_warp
+
+# xxx 
+.ifdef beatme
+
+        sw zero, BEAT (usr)
+
+        sw zero, TICK (usr)
+
+        sw zero, TACK (usr)
+
+.endif
+
+.end 
+
+
 #----------------------------------------------------------------------
 # wipe the dictionary
 warm:
-# next heap free cell  (end of .bss)
+# last link list of primitives, aka dictionary
 
-        ldr fst, =h_here
-        str fst, [usr, #HERE]
+        la fst, h_last
+        sw fst, LAST (usr)
 
-# link list of headers, aka dictionary
-
-        ldr fst, =h_last
-        str fst, [usr, #LAST]
+# next heap free cell
         
-#---------------------------------------------------------------------
-# reset TIB
-reset:
-
-        ldr fst, =_tib
-        str fst, [usr, #TOIN]
+        # la fst, h_where
+        addi fst, usr, user_size + sp_size + CELL + rp_size + CELL
+        sw fst, HEAP (usr)
 
 #---------------------------------------------------------------------
 # unexpected end of dictionary
 miss:
 
-# xxx
-.ifdef dismiss
-
-        j abort
-
-# wipe remains compiled
-
-       	putchar '\n'
-# trd id BL
-100:
-       	lb fst, 0 (idx)
-       	call _putc
-	beq fst, trd, 100f
-	addi idx, idx, ONE
-	j 100b
-100:
-        putchar ' '
- 	putchar '?'
-
-wipe:
-        # compiling ?
-        ldr fst, [usr, #STAT]
-        cmp fst, #0
-        bne 100f
-
-        # wipe remains
-        ldr fst, [usr, #HEAD]
-        str fst, [usr, #HERE]
-100:
-        b error
-
-.endif 
-
-
-# reset stacks
-
-error:
-
 # xxx 
-.ifdef debug
+.ifdef tools
 
+        # emote 
         putchar '\n'
         putchar '?'
         putchar '?'
         putchar '\n'
+
+.endif
+
+# xxx
+.ifdef missed
+
+        # not compiling ? 
+        lw fst, STAT (usr)
+        # execute is zero
+        beq fst, zero, 100f
+        
+        # wipe remains, reclaims space.
+        lw fst, FAUX (usr)
+        sw fst, HEAP (usr)
+        li fst, EXECUTE
+        sw fst, STAT (usr)
+100:
 .endif
 
 #---------------------------------------------------------------------
 abort:
 # reset data stack
         
-        ldr fst, =sp0 
-        str fst, [usr, #SPTR]
+        # la fst, sp0 
+        addi fst, usr, user_size + sp_size + CELL
+        sw fst, SPTR (usr)
 
 #---------------------------------------------------------------------
 quit:
 # reset return stack
         
-        ldr fst, =rp0 
-        str fst, [usr, #RPTR]
-
-# stat is 'interpret' == \0
-        
-        mov fst, #0
-        str fst, [usr, #STAT]
+        #la fst, rp0 
+        addi fst, usr, user_size + sp_size + CELL + rp_size + CELL
+        sw fst, RPTR (usr)
 
 #---------------------------------------------------------------------
-okey:
+# stat is 'interpret' == \0
+        
+        li fst, EXECUTE
+        sw fst, STAT (usr)
 
-# bl prompt_okey
+#---------------------------------------------------------------------
+# 
+warp:
 
 # xxx
-.ifdef debug
+.ifdef tools
 
-        ldr fst, [usr, #STAT]
-        cmp fst, #0
-        bne tick
+        # not compiling ?
+        lw fst, STAT (usr)
+        # execute is zero
+        bne fst, zero, 100f
 
+        # emote 
         putchar '\n'
         putchar 'O'
         putchar 'K'
         putchar '\n'
 
+100:
 .endif
 
-#---------------------------------------------------------------------
-# get a hash of the next token
-tick:
+        # get a hash of the next token in idx
         
-        bl token
+        call token
 
 #---------------------------------------------------------------------         
 # search for a hash in dictionary linked list 
+# idx have the hash of the word
 #
 find:
 
-# get the latest link
+        # get the latest link
         
-        ldr lnk, [usr, #LAST]
+        lw lnk, LAST (usr)
 
 100:
-# verify end of dictionary, take care to abort
+        # verify end of dictionary 
         
-        cmp lnk, #0
-        beq miss    
+        beq lnk, zero, miss
 
-# linked list
+        # linked list
         
-        mov fst, lnk
+        mv fst, lnk
 
-# move next link 
+        # copy next link 
         
-        ldr lnk, [fst, #0]
+        lw lnk, 0 (fst)
 
-# move to hash
+        # copy the hash
         
-        adds fst, #CELL
+        addi fst, fst, CELL
 
-        ldr wrd, [fst]
+        lw wrd, 0 (fst)
 
-# mask the FLAG and hold it in snd
+        # mask the FLAG, hold it in snd
 
-        ldr snd, =FLAG_IMM
+        lui snd, %hi(FLAG_IMM)
 
-        ands snd, wrd
+        and snd, wrd, snd
 
-        eor wrd, snd
+        xor wrd, wrd, snd
 
-# compare
+        # compare trd equ hash
         
-        cmp hsh, wrd
+        bne idx, wrd, 100b
 
-        bne 100b
+        # points to code or list, aka xt
 
-# wrd points to or start of code or list of references
-
-        adds fst, #CELL
+        addi fst, fst, CELL
 
 #---------------------------------------------------------------------         
+# snd have the flag
+# fst have the address after header
 eval:
-# executing ? if state == 0
+        # what to do ?
+
+        lw wrd, STAT (usr)
         
-        ldr wrd, [usr, #STAT]
-        
-        cmp wrd, #0
+        # executing ? if state == 0
 
-        beq execute
+        beq wrd, zero, execute
 
-.ifdef postpones
-# postpone ? if state < 0
-        
-        cmp wrd, #0
+        # immediate ? if flaged
 
-        blt postpone
-.endif
-        
-# immediate ? 
+        bne snd, zero, immediate      
 
-        cmp snd, #0
-
-        bne immediate      
-
-#---------------------------------------------------------------------         
-.ifdef postpones
-# reset state to compile
-postpone:
-        addi trd, zero, ONE
-        sw trd, [usr, #STAT]
-        adds wrd, ONE
-        sw wrd, STAT (usr)
-.endif
-
-# compiling ? if state != 0
+        # compiling  
 compile:
+        
+        call comma
 
-        bl docomma
+        j warp
 
-        b tick
-
-#---------------------------------------------------------------------         
 execute:
 immediate:
 
-        ldr ipt, =tickpt
+        mv ipt, bow
 
-        b pick
-
-# zzzz
-#---------------------------------------------------------------------
-# in place every token, no rewinds
-# the counter is placed at space before word
-# returns a c-str
-# \0 as eol goto getline
-token:
-
-        pushra
-
-# last position on tib
-        
-100:
-
-        ldr idx, [usr, #TOIN]
-
-# skip spaces // trd
-200:
-
-        ldrb snd, [idx, #0]
-
-        cmp snd, #0
-        beq gets
-
-        cmp snd, #BL
-        bne hash
-
-        adds idx, #ONE
-
-        b 200b
-        
-#---------------------------------------------------------------------
-# absolute crude getline, no overflow check, the _getc handle EOF
-#
-gets:
-  
-        ldr idx, =_tib
-        
-        str idx, [usr, #TOIN]
-
-# ever start with a space
-        
-        mov fst, #BL
-
-# loop and fill the TIB until \n
-# no test end of buffer 
-300:
-        strb fst, [idx, #0]
-        
-        adds idx, #ONE
-
-# get next char
-
-        bl _getc
-
-# echo it, if need
-
-        # bl _putc
-
-# cast to 7-bit ascii only 
-
-        # and fst, fst, #127
-
-# \n ^J ends the line
-
-        cmp fst, #NL
-        bne 300b
-
-# at end-of-line
-400:
-
-# replace \n with space 
-        mov fst, #BL
-        strb fst, [idx, #0]
-
-# mark eol with \0
-        mov fst, #0
-        strb fst, [idx, #1]
-
-        b 100b
+        j pick
 
 #---------------------------------------------------------------------
-.equ DJB2, 5381
-.equ SFHT, 5
+# crude token
+# load a valid sequence of ascii from stream, wipes all controls, 
+# any token must be between spaces
 #----------------------------------------------------------------------
 # djb2 hash function
 # classic djb2 hash algorithm, with XOR, adapted from cdb_hash
-# idx pointer to str
-# trd holds the end of word  
-# uses fst, snd, trd
-# hsh returns the hash 
-# idx returns next space after
-hash:
-djb2:
-
-.ifdef dismiss
-
-	mov wrd, idx
-
-.endif
-
-        # easy 5381
-   
-        ldr hsh, =DJB2
-
-100:
-        ldrb fst, [idx, #0]
-        
-        cmp fst, #BL
-        beq 200f
-
-        mov snd, hsh
-
-        lsl hsh, hsh, #SFHT
-        
-        add hsh, snd
-        
-        eor hsh, fst
-        
-        adds idx, #ONE
-        
-        b 100b
-
 #---------------------------------------------------------------------
-200:    
+# magic numbers
+.equ DJB2, 5381
+.equ SFHT, 5
+#---------------------------------------------------------------------
+# return the hash of token in idx 
+# do not change the registers !
+token:
+        save_ra
 
-# mask forth flag 
+        # prepare for hash
+
+        lui idx, %hi(DJB2)
+        addi idx, idx, %lo(DJB2)
+
+        # load word separator, BL is space
+
+        li trd, BL
+
+        # skip spaces
+skip:
+        call _getc
+
+        bleu fst, trd, skip
+        
+        # djb2 hash function
+hash:        
+
+        mv snd, idx
+
+        slli idx, idx, SFHT
+        
+        add idx, idx, snd
+        
+        xor idx, idx, fst
+        
+        # scan spaces
+scan:
+        call _getc
+
+        # andi fst, fst, 127
+
+        bltu fst, trd, scan
+
+        bne fst, trd, hash
+
+        # clear hash high bit 
 mask:
 
-        ldr fst, =MASK_IMM
-        
-        and hsh, fst
+        slli idx, idx, ONE
 
+        srli idx, idx, ONE
+
+        load_ra
+
+        ret
+        
 #---------------------------------------------------------------------
-# save toin
-
-        str idx, [usr, #TOIN]
-
-.ifdef dismiss
-
-        mov idx, wrd
-
-.endif
-
-        pullra
-
-#---------------------------------------------------------------------
-docomma:
-        
-        ldr idx, [usr, #HERE]
-      
-        str fst, [idx]
-      
-        adds idx, #CELL
-      
-        str idx, [usr, #HERE]
-
-        bx lr
-
-#---------------------------------------------------------------------
-#
-# the primitives 
-# 
-#---------------------------------------------------------------------
-
-/*
-h_name:
-        .word h_link_last_name
-        .word hash_this_name
-name:
-        asm code
-        b next
-*/
-
-### version 1.5.0
-#---------------------------------------------------------------------
-pull2:
-        
-        ldr idx, [usr, #SPTR]
-        
-        ldr fst, [idx, #0]
-
-        adds idx, #CELL
-
-        ldr snd, [idx, #0]
-
-        bx lr
-
-#---------------------------------------------------------------------
-# ( -- c ) 
-def_word "key", "key", hash_key
-
-        bl _getc
-
-        b push1
-
-#---------------------------------------------------------------------
-# ( c -- ) 
-def_word "emit", "emit", hash_emit
-        
-        bl pull2
-
-        bl _putc
-
-        b save1
-
-#---------------------------------------------------------------------
-# ( a w -- ),  [a] = w
-def_word "!", "store", hash_store
-        
-        bl pull2
-
-        str snd, [fst, #0]
-
-drop1:
-        adds idx, #CELL
-
-        b save1
-
-#---------------------------------------------------------------------
-# ( a -- w ), w = [a]
-def_word "@", "fetch", hash_fetch
-        
-        bl pull2
-        
-        ldr fst, [fst, #0]
-        
-        b back1
-
-#---------------------------------------------------------------------
-# ( w1 w2 -- w), NOT(w1 AND w2)
-def_word "nand", "nand", hash_nand
-        
-        bl pull2
-
-        and fst, snd
-
-        mvn fst, fst 
-        
-        b keep1
-
-#---------------------------------------------------------------------
-# ( w1 w2 -- w), w = w1 + w2  
-def_word "+", "plus", hash_plus
-        
-        bl pull2
-
-        add fst, snd
-        
-        b keep1
-
-#---------------------------------------------------------------------
-# ( 0 -- FALSE) | ( n -- TRUE), not #0 at top ?
-def_word "0#", "zeroq", hash_notzero
-
-        bl pull2
-        
-isfalse:
-
-        cmp fst, #0
-        beq next
-
-istrue:
-        
-        mov fst, #TRUE
-        
-        b back1
-
-#---------------------------------------------------------------------
-# ( -- state ), return an reference
-def_word "u@", "userat", hash_userat
-        
-        ldr fst, [usr, #0] 
-
-push1:
-        ldr idx, [usr, #SPTR]
-        
-back1:
-        subs idx, #CELL
-
-keep1:
-        str fst, [idx, #0]
-
-save1:
-        str idx, [usr, #SPTR]
-        
-        b next
-
-#---------------------------------------------------------------------
-def_word ":", "colon", hash_colon
-# save here, panic if semis not follow elsewhere
-        
-        ldr fst, [usr, #HERE]
-        
-        str fst, [usr, #HEAD]
-
-# stat is 'compile' == 1
-        
-        mov fst, #ONE
-        
-        str fst, [usr, #STAT]
-
-# make a header:
-
-create:
-
-# copy last into (here)
-        
-        ldr fst, [usr, #LAST]
-        
-        bl docomma
-
-# get following token
-        
-        bl token
-        
-# copy hash into (here)
-
-        mov fst, hsh
-
 comma:
 
-        bl docomma
+        lw idx, HEAP (usr)
+      
+        sw fst, 0 (idx)
+      
+        addi idx, idx, CELL
+      
+        sw idx, HEAP (usr)
 
-        b next 
+        ret
 
 #---------------------------------------------------------------------
-def_word ";", "semis", hash_semis 
-# update last, panic if colon not lead elsewhere 
-        
-        ldr fst, [usr, #HEAD]
-        
-        str fst, [usr, #LAST]
+# the outer loop, need for indirect
 
-# stat is 'interpret' == 0
+is_warp:
         
-        mov fst, #0
-
-        str fst, [usr, #STAT]
-
-# compound words must ends with exit
-        
-        ldr fst, =exit
-
-        b comma
+       .word warp
 
 #---------------------------------------------------------------------
 # Minimal Indirect Thread Code Engine
 #
 # this is the Forth heart beat.
 #
-# nest aka enter or docol, unnest aka exit or semis;
+# nest aka enter or docol, 
+# 
+# unnest aka exit or semis
+#
+# ipt must stay preserved outside, ever.
 #
 # "why there is no 'docol at start of words ?"
 #
-# ( -- ) 
-def_word "exit", "exit", hash_exit
-unnest: #; exit
-# return pull, ipt = (rpt), rpt += cell 
+#---------------------------------------------------------------------
+# return pull 
+unnest: 
         
-        ldr idx, [usr, #RPTR]
+        lw idx, RPTR (usr)
         
-        ldr ipt, [idx], #CELL
+        lw ipt, 0 (idx)
         
-        # adds idx, #CELL
+        addi idx, idx, CELL
         
-        str idx, [usr, #RPTR]
+        sw idx, RPTR (usr)
 
+# next heart beat
 next:
-# wrd = (ipt) #; ipt += cell
-        
-        ldr wrd, [ipt]
-        
-        adds ipt, #CELL
+# xxx
+.ifdef beatme
+        call beats
+.endif
 
+        lw fst, 0 (ipt)
+        
+        addi ipt, ipt, CELL
+
+# compare address, if is a primitive then jumps, MITC 
 pick:
-# compare address, if is a primitive then jumps 
         
-        ldr idx, =ends
+        # la idx, _ends
+        # bge fst, idx, nest
         
-        cmp fst, idx
+        bge fst, nib, nest
 
-        bge nest
-
-jump: 
 # jump to primitive
-        
-        blx fst
+jump: 
+# xxx
+.ifdef beatme
+        call ticks
+.endif
 
-nest:   #; enter
-# return push, rp -= cell, (rpt) = ipt
+        # really jump and link 
+        jalr ra, 0 (fst)
+
+# return push
+nest:   
+# xxx
+.ifdef beatme
+        call tacks
+.endif
+
+        lw idx, RPTR (usr)
         
-        ldr idx, [usr, #RPTR]
+        addi idx, idx, -1 * CELL
         
-        # subs idx, #CELL
+        sw ipt, 0 (idx)
         
-        str ipt, [idx, #-CELL]!
-        
-        str idx, [usr, #RPTR]
+        sw idx, RPTR (usr)
 
 move: 
-# indirect access 
+# resolve indirect thread
         
-        mov ipt, fst
+        mv ipt, fst
         
-        b next
+        j next
 
-#---------------------------------------------------------------------
-# the outer loop, need for indirect
+#----------------------------------------------------------------------
+# xxx
+.ifdef beatme
 
-tickpt:
+# count heart beats 
+beats:
+        lw idx, BEAT (usr)
+
+        addi idx, idx, 1
         
-        .word okey
+        sw idx, BEAT (usr)
+
+        ret
+
+# count ticks as primitive executions
+ticks:
+        lw idx, TICK (usr)
+
+        addi idx, idx, 1
+        
+        sw idx, TICK (usr)
+
+        ret
+
+# count tacks as composed executions
+tacks:
+        lw idx, TACK (usr)
+
+        addi idx, idx, 1
+        
+        sw idx, TACK (usr)
+
+        ret
+
+.endif
+#----------------------------------------------------------------------
 
 #----------------------------------------------------------------------
 # system dependences, linux ecall
-#
-
-#include "minimal.S"
-
-#---------------------------------------------------------------------
-# any other primitives after exit
 #---------------------------------------------------------------------
 
-.ifdef debug
+#include "syscalls.S"
 
-.equ EXTRAS, YES
+#---------------------------------------------------------------------
+# forth words
+#---------------------------------------------------------------------
 
 #----------------------------------------------------------------------
-.ifdef EXTRAS
+.set last_next, 0x0
 
-.set into_extras, h_exit
+#include "minimals.S"
 
-#include "extras-armv6.S"
+#----------------------------------------------------------------------
+.ifdef primitives
 
-.set h_last, from_extras
-
-.endif
+#include "primitives.S"
 
 .endif
 
 #----------------------------------------------------------------------
-.ifndef EXTRAS
+.ifdef tools
 
-.set h_last, h_exit
+#include "tools.S"
 
 .endif
 
+#----------------------------------------------------------------------
+.set h_last, last_next
+
 #---------------------------------------------------------------------
-# Beware, ends must be at last word in primitive ditionary !
+# Beware, ends must be at last word behind native ditionary !
+# it is used to know if a 'address' is primitive or not
 #---------------------------------------------------------------------
 
-ends:
-
-# .word 0xDEADBEEF
+_nibs:
 
 #---------------------------------------------------------------------
 .end

@@ -3,34 +3,49 @@
 #       for alias register names 
 #
 #       agsb@ 24/04/2026
+#
 #       svc     used in linux system calls
 #
+#---------------------------------------------------------------------
+
 # forth struct pointer, constant 
-usr .req r9
+#define usr r8
 
 # instruction pointer, preserved
-ipt .req r8
+#define ipt r9 
+
+# forth address pointer, preserved
+#define lrk r10 
+
+# forth address pointer, preserved
+#define nib r11 
+
+# forth address pointer, preserved
+#define bow r12 
 
 # memory index, svc 
-idx .req r0
+#define idx r0 
 
 # hash value, svc
-hsh .req r1
+#define hsh r1 
 
 # link pointer, svc
-lnk .req r2
+#define lnk r2 
 
 # word pointer, svc
-wrd .req r3
+#define wrd r3 
 
 # generic, free
-fst .req r4
+#define fst r4 
 
 # generic, free
-snd .req r5
+#define snd r5 
 
 # generic, free
-trd .req r6
+#define trd r6 
 
 # generic, svc
-fth .req r7
+#define fth r7 
+
+#---------------------------------------------------------------------
+
