@@ -70,17 +70,17 @@ is_\label:
 
 @---------------------------------------------------------------------
 @ Riscv does not have automatic, and hidden, SP push/pull
-@ for two level nested calls, use save_ra and load_ra
+@ for two level nested calls, use save_lr and load_ra
 @ ever use as macro
 
 @ one deep
 
-.macro  save_ra
-        mv rak, ra
+.macro  save_lr
+        push { lr }
 .endm
 
-.macro  load_ra
-        mv ra, rak
+.macro  load_lr
+        pop { lr }
 .endm
 
 @----------------------------------------------------------------------
@@ -120,8 +120,6 @@ _rp0:
 
 @----------------------------------------------------------------------
 @ NOTE:
-@ user_size + sp_size + rp_size must be less than 2024 bytes
-@ because code uses addi (+12bits) to setup offset address
 @----------------------------------------------------------------------
 
 @ user dictionary 
@@ -164,7 +162,7 @@ main:
 cold:
 @ load constant pointer address
 
-        ldr usr, =_user
+        ldr r9, =_user
 
         @la nib, _nibs
         
@@ -180,21 +178,21 @@ cold:
         li t2, 0
 .endif
 
-.end
+@.end
 
 @----------------------------------------------------------------------
 @ wipe the dictionary
 warm:
 @ last link list of primitives, aka dictionary
 
-        la fst, h_last
-        sw fst, LAST (usr)
+        ldr fst, =h_last
+        str fst, [usr, #LAST]
 
 @ next heap free cell
         
         @# la fst, h_where
-        addi fst, usr, user_size + sp_size + CELL + rp_size + CELL 
-        sw fst, HEAP (usr)
+        ldr fst, =h_where
+        str fst, [usr, #HEAP]
 
 @---------------------------------------------------------------------
 @ unexpected end of dictionary
@@ -215,15 +213,16 @@ miss:
 .ifdef missed
 
         @# not compiling ? 
-        lw fst, STAT (usr)
+        ldr fst, [usr, #STAT]
         @# execute is zero
-        beqz fst, 100f
+        cmp fst, #0
+        beqz =100f
         
         @# wipe remains, reclaims space.
-        lw fst, PEEK (usr)
-        sw fst, HEAP (usr)
-        li fst, EXECUTE
-        sw fst, STAT (usr)
+        ldr fst, [usr, #PEEK]
+        str fst, [usr, #HEAP]
+        mov fst, #EXECUTE
+        str fst, [usr, #STAT]
 100:
 .endif
 
@@ -232,22 +231,22 @@ abort:
 @ reset data stack
         
         @# la fst, sp0 
-        addi fst, usr, user_size + sp_size
-        sw fst, SPTR (usr)
+        ldr fst, =sp0
+        str fst, [usr, #SPTR]
 
 @---------------------------------------------------------------------
 quit:
 @ reset return stack
         
         @#la fst, rp0 
-        addi fst, usr, user_size + sp_size + CELL + rp_size
-        sw fst, RPTR (usr)
+        ldr fst, =rp0
+        str fst, [usr, #RPTR]
 
 @---------------------------------------------------------------------
 @ stat is 'interpret' == \0
         
-        li fst, EXECUTE
-        sw fst, STAT (usr)
+        mov fst, #EXECUTE
+        str fst, [usr, #STAT]
 
 @---------------------------------------------------------------------
 @ 
@@ -257,9 +256,10 @@ warp:
 .ifdef tools
 
         @# not compiling ?
-        lw fst, STAT (usr)
+        ldr fst, [usr, #STAT]
         @# execute is zero
-        bne fst, zero, 100f
+        cmp fst, #0
+        bne =100f
 
         @# emote 
         putchar '\n'
@@ -272,7 +272,7 @@ warp:
 
         @# get a hash of the next token in trd
         
-        call token
+        bl token
 
 @---------------------------------------------------------------------         
 @ search for a hash in dictionary linked list 
@@ -282,42 +282,44 @@ find:
 
         @# get the latest link
         
-        lw lnk, LAST (usr)
+        ldr lnk, [usr, #LAST]
 
 100:
         @# verify end of dictionary 
         
-        beqz lnk, miss
+        cmp lnk, #0
+        beq =miss
 
         @# linked list
         
-        mv fst, lnk
+        mov fst, lnk
 
         @# copy next link 
         
-        lw lnk, 0 (fst)
+        ldr lnk, [fst, #0]
 
         @# copy the hash
         
-        addi fst, fst, CELL
+        add fst, fst, #CELL
 
-        lw hsh, 0 (fst)
+        ldr hsh, [fst, #0]
 
         @# mask the FLAG, hold it in snd
 
-        lui snd, %hi(FLAG_IMM)
+        mov snd, #FLAG_IMM
 
         and snd, hsh, snd
 
-        xor hsh, hsh, snd
+        eor hsh, hsh, snd
 
         @# compare trd equ hash
         
-        bne trd, hsh, 100b
+        cmp trd, hsh
+        bne =100b
 
         @# points to code or list, aka xt
 
-        addi fst, fst, CELL
+        add fst, fst, #CELL
 
 @---------------------------------------------------------------------         
 @ snd have the flag
@@ -325,39 +327,42 @@ find:
 eval:
         @# what to do ?
 
-        lw wrd, STAT (usr)
+        ldr wrd, [usr, #STAT]
         
 @ XXX
 .ifdef postpone
-        li lnk, POSTPONE
-        bne wrd, lnk, 100f
-        li lnk, COMPILE
-        sw lnk, STAT (usr)
-        j compile
+        li lnk, #POSTPONE
+        cmp wrd, lnk
+        bne =100f
+        mov lnk, #COMPILE
+        str lnk, [usr, #STAT]
+        bl compile
 100:
 .endif
         
         @# executing ? if state == 0
 
-        beqz wrd, execute
+        cmp wrd, #0
+        beq =execute
 
         @# immediate ? if flaged
 
-        bnez snd, execute      
+        cmp snd, #0
+        bne =execute      
 
         @# compiling  
 compile:
         
-        call comma
+        bl comma
 
-        j warp
+        bl warp
 
 @ immediate:
 execute:
 
-        mv ipt, bow
+        mov ipt, #is_warp
 
-        j pick
+        bl pick
 
 @---------------------------------------------------------------------
 @ crude token
@@ -374,65 +379,66 @@ execute:
 @ return the hash of token in trd
 @ do not change the registers !
 token:
-        save_ra
+        save_lr
 
         @# prepare for hash
 
-        lui trd, %hi(DJB2)
-        addi trd, trd, %lo(DJB2)
+        ldr trd, #DJB2
 
         @# load word separator, BL is space
 
-        li spc, BL
+        mov spc, #BL
 
         @# skip spaces
 skip:
-        call _getc
+        bl _getc
 
-        ble fst, spc, skip
+        cmp fst, spc
+        ble =skip
         
         @# djb2 hash function
 hash:        
 
-        mv snd, trd
+        mov snd, trd
 
-        slli trd, trd, SFHT
+        lsl trd, trd, #SFHT
         
         add trd, trd, snd
         
-        xor trd, trd, fst
+        eor trd, trd, fst
         
         @# scan spaces
 scan:
-        call _getc
+        bl _getc
 
-        blt fst, spc, scan
-
-        bne fst, spc, hash
+        cmp fst, spc
+        blt =scan
+        
+        bne =hash
 
         @# clear hash high bit 
 mask:
 
-        slli trd, trd, ONE
+        lsl trd, trd, #ONE
 
-        srli trd, trd, ONE
+        lsr trd, trd, #ONE
 
-        load_ra
+        load_lr
 
-        ret
+        bx lr
         
 @---------------------------------------------------------------------
 comma:
 
-        lw trd, HEAP (usr)
+        ldr trd, [usr, #HEAP]
       
-        sw fst, 0 (trd)
+        str fst, [trd, #0]
       
-        addi trd, trd, CELL
+        add trd, trd, #CELL
       
-        sw trd, HEAP (usr)
+        str trd, [usr, #HEAP]
 
-        ret
+        bx lr
 
 @---------------------------------------------------------------------
 @ the outer loop, need for indirect
@@ -458,61 +464,63 @@ is_warp:
 @ return pull 
 unnest: 
         
-        lw trd, RPTR (usr)
+        ldr trd, [usr, #RPTR]
         
-        lw ipt, 0 (trd)
+        ldr ipt, [trd, #0]
         
-        addi trd, trd, CELL
+        add trd, trd, #CELL
         
-        sw trd, RPTR (usr)
+        str trd, [usr, #RPTR]
 
 @ next heart beat
 next:
 @ xxx
 .ifdef beatme
-        addi t0, t0, 1
+        add t0, t0, 1
 .endif
 
-        lw fst, 0 (ipt)
+        ldr fst, [ipt, #0]
         
-        addi ipt, ipt, CELL
+        add ipt, ipt, #CELL
 
 @ compare address, if is a primitive then jumps, MITC 
 pick:
         
-        bge fst, nib, nest
+        ldr trd, =h_where
+        cmp fst, trd
+        bge =nest
 
 @ jump to primitive
 jump: 
 @ xxx
 .ifdef beatme
-        addi t1, t1, 1
+        add t1, t1, 1
 .endif
 
         @# really jump and link 
-        jalr ra, 0 (fst)
+        blx fst
 
 @ return push
 nest:   
 @ xxx
 .ifdef beatme
-        addi t2, t2, 1
+        add t2, t2, 1
 .endif
 
-        lw trd, RPTR (usr)
+        ldr trd, [usr, #RPTR]
         
-        addi trd, trd, -1 * CELL
+        sub trd, trd, #CELL
         
-        sw ipt, 0 (trd)
+        str ipt, [trd, #0]
         
-        sw trd, RPTR (usr)
+        str trd, [usr, #RPTR]
 
 move: 
 @ resolve indirect thread
         
-        mv ipt, fst
+        mov ipt, fst
         
-        j next
+        bl next
 
 @----------------------------------------------------------------------
 
