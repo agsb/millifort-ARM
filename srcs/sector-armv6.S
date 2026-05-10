@@ -164,18 +164,9 @@ cold:
 
         ldr r9, =_user
 
-        @la nib, _nibs
-        
-        @la bow, is_warp
-
 @ xxx 
 .ifdef beatme
-        @# beat
-        li t0, 0
-        @# tick
-        li t1, 0
-        @# tack
-        li t2, 0
+
 .endif
 
 @.end
@@ -216,7 +207,7 @@ miss:
         ldr fst, [usr, #STAT]
         @# execute is zero
         cmp fst, #0
-        beqz =100f
+        beq =100f
         
         @# wipe remains, reclaims space.
         ldr fst, [usr, #PEEK]
@@ -230,16 +221,16 @@ miss:
 abort:
 @ reset data stack
         
-        @# la fst, sp0 
-        ldr fst, =sp0
+        @# la fst, _sp0 
+        ldr fst, =_sp0
         str fst, [usr, #SPTR]
 
 @---------------------------------------------------------------------
 quit:
 @ reset return stack
         
-        @#la fst, rp0 
-        ldr fst, =rp0
+        @#la fst, _rp0 
+        ldr fst, =_rp0
         str fst, [usr, #RPTR]
 
 @---------------------------------------------------------------------
@@ -331,7 +322,7 @@ eval:
         
 @ XXX
 .ifdef postpone
-        li lnk, #POSTPONE
+        mov lnk, #POSTPONE
         cmp wrd, lnk
         bne =100f
         mov lnk, #COMPILE
@@ -383,17 +374,13 @@ token:
 
         @# prepare for hash
 
-        ldr trd, #DJB2
-
-        @# load word separator, BL is space
-
-        mov spc, #BL
+        ldr trd, =DJB2
 
         @# skip spaces
 skip:
         bl _getc
 
-        cmp fst, spc
+        cmp fst, #BL
         ble =skip
         
         @# djb2 hash function
@@ -411,7 +398,7 @@ hash:
 scan:
         bl _getc
 
-        cmp fst, spc
+        cmp fst, #BL
         blt =scan
         
         bne =hash
@@ -528,7 +515,7 @@ move:
 @ system dependences, linux ecall
 @---------------------------------------------------------------------
 
-@include "syscalls.S"
+#include "syscalls.S"
 
 @---------------------------------------------------------------------
 @ forth words
@@ -537,19 +524,19 @@ move:
 @----------------------------------------------------------------------
 .set last_next, 0x0
 
-@include "minimals.S"
+#include "minimals.S"
 
 @----------------------------------------------------------------------
 .ifdef primitives
 
-@include "primitives.S"
+#include "primitives.S"
 
 .endif
 
 @----------------------------------------------------------------------
 .ifdef tools
 
-@include "tools.S"
+#include "tools.S"
 
 .endif
 

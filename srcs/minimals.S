@@ -1,5 +1,5 @@
 /*
-#---------------------------------------------------------------------
+@---------------------------------------------------------------------
  
   Copyright 2025 Alvaro Gomes Sobral Barcellos <@agsb>
  
@@ -16,410 +16,446 @@
   You should have received a copy of the GNU General Public License
   along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-#----------------------------------------------------------------------
+@----------------------------------------------------------------------
 */
 
-#---------------------------------------------------------------------
-#
-# the minimal primitives 
-# 
-#---------------------------------------------------------------------
+@---------------------------------------------------------------------
+@
+@ the minimal primitives 
+@ 
+@---------------------------------------------------------------------
 
-#---------------------------------------------------------------------
-#
-#  djb2 hash cleared of bit 31
-#
-#---------------------------------------------------------------------
-# symbols ! @ + 0# : ;
+@---------------------------------------------------------------------
+@
+@  djb2 hash cleared of bit 31
+@
+@---------------------------------------------------------------------
+@ symbols ! @ + 0# : ;
 .equ hash_store, 0x0002B584 
 .equ hash_fetch, 0x0002B5E5 
 .equ hash_plus,  0x0002B58E 
 .equ hash_zeroq, 0x00596816 
 .equ hash_colon, 0x0002B59F 
-.equ hash_semis, 0x8002B59E # unique with FLAG_IMM 
 
-#---------------------------------------------------------------------
-# uppercase KEY EMIT EXIT NAND U@
+.equ hash_semis, 0x8002B59E @# unique with FLAG_IMM 
+
+@---------------------------------------------------------------------
+@ uppercase KEY EMIT EXIT NAND U@
 .equ hash_KEY,   0x0B87F112
 .equ hash_EMIT,  0x7C7C87D0
 .equ hash_NAND,  0x7C8254C0
 .equ hash_USERAT, 0x005973B0
 .equ hash_EXIT,  0x7C7CC745
 
-#---------------------------------------------------------------------
+@---------------------------------------------------------------------
 
 .equ init_minimals, last_next
 
-#---------------------------------------------------------------------
-# ( -- ) ; aka figforth semis
+@---------------------------------------------------------------------
+@ ( -- ) ; aka figforth semis
 def_word "EXIT", "exit", hash_EXIT, init_minimals
 
-        j unnest
+        bl unnest
 
-#---------------------------------------------------------------------
-# ( -- ), ; aka figforth colon 
+@---------------------------------------------------------------------
+@ ( -- ), ; aka figforth colon 
 def_word ":", "colon", hash_colon, it_exit
-# save here, panic if semis not follow elsewhere
+@ save here, panic if semis not follow elsewhere
         
-        lw fst, HEAP (usr)
+        ldr fst, [ usr, #HEAP ]
         
-        sw fst, FAUX (usr)
+        str fst, [ usr, #PEEK ]
 
-# stat is 'compile' == 1
+@ stat is 'compile' == 1
         
-        addi fst, zero, ONE
+        mov fst, #COMPILE
         
-        sw fst, STAT (usr)
+        str fst, [ usr, #STAT ]
 
-# make a header
+@ make a header
 
 create:
 
-# copy last into (here)
+@ copy last into (here)
         
-        lw fst, LAST (usr)
+        ldr fst, [ usr, #LAST ]
         
-        call comma
+        bl comma
 
-# get a hash of the next token
+@ get a hash of the next token
         
-        call token
+        bl token
 
-# copy hash into (here)
+@ copy hash into (here)
 
-        mv fst, idx
+        mov fst, trd
 
 docomma:
 
-        call comma
+        bl comma
 
-        j next 
+        bl next 
 
-#---------------------------------------------------------------------
-# ( -- ) ; aka figforth semicolon
+@---------------------------------------------------------------------
+@ ( -- ) ; aka figforth semicolon
 def_word ";", "semis", hash_semis, it_colon 
-# update last, panic if colon not lead elsewhere 
+@ update last, panic if colon not lead elsewhere 
         
-        lw fst, FAUX (usr)
+        ldr fst, [ usr, #PEEK ]
         
-        sw fst, LAST (usr)
+        str fst, [ usr, #LAST ]
 
-# stat is 'interpret' == 0
+@ stat is 'execute' == 0
         
-        sw zero, STAT (usr)
+        mov fst, #EXECUTE
+
+        str fst, [ usr, #STAT ]
 
 finish:
-# compound words must ends with exit
+@ compound words must ends with exit
         
-        la fst, is_exit
+        ldr fst, =is_exit
 
-        j docomma
+        bl docomma
 
-#---------------------------------------------------------------------
-# ( -- c ) 
+@---------------------------------------------------------------------
+@ ( -- c ) 
 def_word "KEY", "key", hash_KEY, it_semis 
 
-        call _getc
+        bl _getc
 
-        j push1
+        bl push1
 
-#---------------------------------------------------------------------
-# ( c -- ) 
+@---------------------------------------------------------------------
+@ ( c -- ) 
 def_word "EMIT", "emit", hash_EMIT, it_key
         
-        call pull2
+        bl pull2
 
-        call _putc
+        bl _putc
 
-        j save1
+        bl save1
 
-#---------------------------------------------------------------------
-# ( a w -- ),  [a] = w
+@---------------------------------------------------------------------
+@ ( a w -- ),  [a] = w
 def_word "!", "store", hash_store, it_emit
         
-        call pull2
+        bl pull2
 
-        sw snd, 0 (fst)
+        str snd, [ fst, #0 ]
 
 drop1:
-        addi idx, idx, CELL
+        add trd, trd, #CELL
 
-        j save1
+        bl save1
 
-#---------------------------------------------------------------------
-# ( a -- w ), w = [a]
+@---------------------------------------------------------------------
+@ ( a -- w ), w = [a]
 def_word "@", "fetch", hash_fetch, it_store
         
-        call pull2
+        bl pull2
         
-        lw fst, 0 (fst)
+        ldr fst, [ fst, #0 ]
         
-        j back1
+        bl back1
 
-#---------------------------------------------------------------------
-# ( w1 w2 -- w), NOT(w1 AND w2)
+@---------------------------------------------------------------------
+@ ( w1 w2 -- w), NOT(w1 AND w2)
 def_word "NAND", "nand", hash_NAND, it_fetch
-        
-        call pull2
+
+        bl pull2
 
         and fst, snd, fst
         
-        not fst, fst
+        mvn fst, fst
 
-        j keep1
+        bl keep1
 
-#---------------------------------------------------------------------
-# ( w1 w2 -- w), w = w1 + w2  
+@---------------------------------------------------------------------
+@ ( w1 w2 -- w), w = w1 + w2  
 def_word "+", "plus", hash_plus, it_nand
         
-        call pull2
+        bl pull2
 
         add fst, snd, fst
 
-        j keep1
+        bl keep1
 
-#---------------------------------------------------------------------
-# ( 0 -- FALSE) | ( n -- TRUE), not zero at top ?
+@---------------------------------------------------------------------
+@ ( 0 -- FALSE) | ( n -- TRUE), not zero at top ?
 def_word "0#", "zeroq", hash_zeroq, it_plus
 
-        call pull2
+        bl pull2
         
-        beq fst, zero, back1
+        cmp fst, #0
+        beq back1
 
-        addi fst, zero, TRUE
+        mov fst, #TRUE
         
-        j back1
+        bl back1
 
-#---------------------------------------------------------------------
-# beware variables order
-# ( -- _user ) return an reference to _user structure
+@---------------------------------------------------------------------
+@ beware variables order
+@ ( -- _user ) return an reference to _user structure
 def_word "U@", "userat", hash_USERAT, it_zeroq
         
-        mv fst, usr 
+        mov fst, usr 
 
 push1:
-        lw idx, SPTR (usr)
+        ldr trd, [ usr, #SPTR ]
         
 back1:
-        addi idx, idx, -1 * CELL
+        sub trd, trd, #CELL
 
 keep1:
-        sw fst, 0 (idx)
+        str fst, [ trd, #0 ]
 
 save1:
-        sw idx, SPTR (usr)
+        str trd, [ usr, #SPTR ]
         
-        j next
+        bl next
 
-#---------------------------------------------------------------------
+@---------------------------------------------------------------------
 
 pull2:
         
-        lw idx, SPTR (usr)
+        ldr trd, [ usr, #SPTR ]
         
-        lw fst, 0 (idx)
+        ldr fst, [ trd, #0 ]
         
-        addi idx, idx, CELL
+        add trd, trd, #CELL
 
-        lw snd, 0 (idx)
+        ldr snd, [ trd, #0 ]
 
-        ret
+        bx lr 
 
-#---------------------------------------------------------------------
+@---------------------------------------------------------------------
 
 .equ last_next, it_userat
 
-#---------------------------------------------------------------------
+@---------------------------------------------------------------------
 
 .ifdef extras 
 
-#---------------------------------------------------------------------
-#
-#  djb2 hash cleared of bit 31
-#
-#---------------------------------------------------------------------
+@---------------------------------------------------------------------
+@
+@  djb2 hash cleared of bit 31
+@
+@---------------------------------------------------------------------
 
 .equ hash_DOCODE, 0x0059697A
 .equ hash_ABORT, 0x0A1DFF4F
 .equ hash_BYE, 0x0B87C61B
 .equ hash_DOT, 0x0002B58B
-.equ hash_HEXNUM, 0x0002B581
+.equ hash_HEX, 0x0002B581
+.equ hash_NAN, 0x0B87D404 
+.equ hash_LSHIFT, 0x2C5784C9 
+.equ hash_RSHIFT, 0x416E6B97
 
-#---------------------------------------------------------------------
+@---------------------------------------------------------------------
 
 .set init_extras, last_next
 
-#---------------------------------------------------------------------
-# ( -- ) execute a jump and link
-def_word ";$", "docode", hash_DOCODE, init_extras
+@---------------------------------------------------------------------
+@ ( -- ) push 0x80000000 #; Not a Number and flag IMMEDIATE and error
+def_word "NAN", "nan", hash_NAN, init_extras
+by_erro:
+by_zero:
+by_under:        
+by_over:
 
-        # keep the return address in ra 
-        # then jump to where ipt holds
-
-        jalr ra, 0 (ipt)
+        mov fst, #0x80000
         
-        # at there, a ret # jalr zero, 0 ( ra )
-        # will return here 
+        bl push1
 
-        j next
+@---------------------------------------------------------------------
+@ ( w1 w2 -- w1<<w2 ) #; shift left
+def_word "LSHIFT", "lshift", hash_LSHIFT, it_nan
 
-#---------------------------------------------------------------------
-# ( -- ) ae abort
+        bl pull2
+        
+        lsl fst, snd, fst
+        
+        bl keep1
+
+@---------------------------------------------------------------------
+@ ( w1 w2 -- w1>>w2 ) #; shift right
+def_word "RSHIFT", "rshift", hash_RSHIFT, it_lshift
+
+        bl pull2
+        
+        lsr fst, snd, fst
+        
+        bl keep1
+
+@---------------------------------------------------------------------
+@ ( -- ) execute a jump and link
+def_word ";$", "docode", hash_DOCODE, it_rshift 
+
+        # jump and link to there 
+
+        bl ipt
+        
+        # at there, save ra, do whatever, load ra,
+        # end with  jalr s1, 0 (ra)
+        # to return here, with s1 (is IP) to next cell 
+
+        bl next
+
+@---------------------------------------------------------------------
+@ ( -- ) ae abort
 def_word "ABORT", "aborts", hash_ABORT, it_docode
 
-        j abort
+        bl abort
 
-#---------------------------------------------------------------------
-# ( -- ) exit forth
+@---------------------------------------------------------------------
+@ ( -- ) exit forth
 def_word "BYE", "byes", hash_BYE, it_aborts
 
-        j _exit
+        bl _exit
 
-#---------------------------------------------------------------------
-# ( w -- ) #; @
-def_word "$", "hexnum", hash_HEXNUM, it_byes
+@---------------------------------------------------------------------
+@ ( w -- ) #; @
+def_word "$", "hex", hash_HEX, it_byes
 
-        call number
+        bl number
 
-        j push1
+        bl push1
         
-#---------------------------------------------------------------------
-# ( w -- ) #; @
-def_word ".", "dot", hash_DOT, it_hexnum
+@---------------------------------------------------------------------
+@ ( w -- ) #; @
+def_word ".", "dot", hash_DOT, it_hex
 
-        call pull2
+        bl pull2
 
-        call tohex
+        bl tohex
 
-        j save1
+        bl save1
         
-#---------------------------------------------------------------------
+@---------------------------------------------------------------------
 
 .equ last_next, it_dot
 
-#---------------------------------------------------------------------
-# code a 32-bit word in ASCII hexadecimal
-# safe inside Forth words
-# 
+@---------------------------------------------------------------------
+@ code a 32-bit word in ASCII hexadecimal
+@ safe inside Forth words
+@ 
 tohex:
 
-        rasave
+        save_lr
 
-        mv snd, fst
+        mov snd, fst
         
-        li trd, 58
+        mov trd, #58
 
-        li t0, 32
+        mov spc, #32
 
         # rolls 
 100:
-        beq t0, zero, 300f
+        cmp spc, #0
+        beq 300f
 
-        addi t0, t0, -4
+        sub spc, spc, #4
 
-        srl  fst, snd, t0
-
-        andi fst, fst, 15
-        ori  fst, fst, 48
-        blt  fst, trd, 200f
-        addi fst, fst, 7
+        lsr fst, snd, spc
+        and fst, fst, #15
+        orr fst, fst, #48
+        cmp fst, trd
+        blt 200f
+        add fst, fst, #7
 200:
-        call _putc
+        bl _putc
         
-        j 100b
+        bl 100b
 
 300:
 
-        raload
+        load_lr
 
-        ret
+        bx lr 
 
-#----------------------------------------------------------------------
-# code a ASCII $0-9A-F hexadecimal to value
-# safe inside Forth words
+@----------------------------------------------------------------------
+@ code a ASCII $0-9A-F hexadecimal to value
+@ safe inside Forth words
 number:
 
-        rasave
+        save_lr
 
         # clear result
 
-        li idx, 0
-
-        # load NaN
-
-        lui snd, 0x80000
-
-        # load word separator, BL is space      
-
-        li trd, BL
+        mov trd, #0
 
         # skip spaces 
 nskip:
-        call _getc
-        bleu fst, trd, nskip
+        bl _getc
+        cmp fst, #BL
+        ble nskip
 
 ndigit:
 
-        call digit
+        bl digit
 
-        beq fst, snd, nodigit
+        cmp fst, #0x8000000
+        beq nodigit
 
-        slli idx, idx, 4
+        lsl trd, trd, #4
 
-        add idx, idx, fst
+        add trd, trd, fst
         
         # scan spaces 
 nscan:
-        call _getc
-        bltu fst, trd, nscan
+        bl _getc
+        cmp fst, #BL
+        blt nscan
 
-        bne fst, trd, ndigit
+        bne ndigit
 
 isdigit:
 
-        mv fst, idx 
+        mov fst, trd 
 
 nodigit:
 
-        raload
+        load_lr
 
-        ret
+        bx lr 
 
-# verify valid digit and convert it
+@ verify valid digit and convert it
 digit:
 
 100:
         #; valid digit, 0-9 and A-F  
-        addi fst, fst, -48
-        blt fst, zero, 400f
+        sub fst, fst, #48
+        cmp fst, #0
+        blt 400f
 
         #; 0-9 ?
-        li hsh, 10
-        blt fst, hsh, 200f
+        cmp fst, #10
+        blt 200f
 
         #; normalize gap ascii 9 to A
-        addi fst, fst, -7
+        sub fst, fst, #7
 
         #; A to F ? No esoteric bases !
-        li hsh, 16
-        bgt fst, hsh, 400f
+        cmp fst, #16
+        bgt 400f
 
 200:
         #; fst [ 0 .. 16 ]
         
-        # lw hst, BASE (usr)
+        # ldr hst, [ usr, #BASE ]
         # bgt fst, hst, 400f
 
-        ret
+        bx lr 
 
 400:
-# is_error, NaN
+@ is_error, NaN
 
-        lui fst, 0x80000
+        ldr fst, =0x80000
 
-        ret
+        bx lr 
 
-#---------------------------------------------------------------------
+@---------------------------------------------------------------------
 .endif
-#---------------------------------------------------------------------
+@---------------------------------------------------------------------
 

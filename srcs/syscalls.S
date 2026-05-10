@@ -1,5 +1,5 @@
 /*
-@---------------------------------------------------------------------
+#---------------------------------------------------------------------
  
   Copyright 2025 Alvaro Gomes Sobral Barcellos <@agsb>
  
@@ -16,18 +16,18 @@
   You should have received a copy of the GNU General Public License
   along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-@----------------------------------------------------------------------
+#----------------------------------------------------------------------
+*/
 
+#---------------------------------------------------------------------
+#
+# Note: system swi #0s do not use ra 
+#
 
-@---------------------------------------------------------------------
-@
-@ Note: system ecalls do not use ra 
-@
-
-@---------------------------------------------------------------------
-@ linux ecall stuff, 29/07/2025, vide:
-@ https://github.com/riscv-software-src/riscv-pk/blob/master/pk/syscall.h
-@ https://gpages.juszkiewicz.com.pl/syscalls-table/syscalls.html
+#---------------------------------------------------------------------
+# linux swi #0 stuff, 29/07/2025, vide:
+# https://github.com/riscv-software-src/riscv-pk/blob/master/pk/syscall.h
+# https://gpages.juszkiewicz.com.pl/syscalls-table/syscalls.html
 
 .equ _ZERO,      0
 .equ _ONE,       1
@@ -41,38 +41,38 @@
 .equ _EXIT,     93
 .equ _MMAP,     192
 
-@---------------------------------------------------------------------
+#---------------------------------------------------------------------
 .section .data
 _char:
         .word   0x0
 
-@---------------------------------------------------------------------
+#---------------------------------------------------------------------
 .section .text
 
-@ load system call for exit
+# load system call for exit
 _exit:
-        movs r7, #_EXIT
-        movs r0, #_ZERO
-        svc #0
+        mov r7, #_EXIT
+        mov r0, #_ZERO
+        swi #0
 
-@ load system call for init
+# load system call for init
 _init:
         
         bx lr
 
-@ linux ecall for getc
+# linux swi #0 for getc
 _getc:
-        movs r7, #_GETC
-        movs r0, #_STDIN
-        ldr  r1, =_char
-        movs r2, #_ONE
-        svc #0
-        ldrb r3, [r1]
+        mov r7, #_GETC
+        mov r0, #_STDIN
+        ldr r1, =_char
+        mov r2, #_ONE
+        swi #0
+        strb r3, [ a1, #0 ]
         
         #EOF?
 
         cmp r0, #0
-        beq  _exit
+        beq _exit
 
 .ifndef echoo
 
@@ -80,44 +80,58 @@ _getc:
 
 .endif
 
-@ linux ecall for putc
+# linux swi #0 for putc
 _putc:
-        movs r7, #_PUTC
-        movs r0, #_STDOUT
-        ldr  r1, =_char
-        movs r2, #_ONE
-        strb r3, [r1]
+        mov r7, #_PUTC
+        mov r0, #_STDOUT
+        ldr r1, =_char
+        mov r2, #_ONE
+        ldrb r3, [ a1, #0 ]
 
 _rets:
-        svc #0
-
+        swi #0
         bx lr
 
 /*
+
 .ifdef extras
-@---------------------------------------------------------------------
+#---------------------------------------------------------------------
+_fcntl: # fd, cdm, arg
+        mov r7, _FCNT 
+        mv r0, r3
+        mv r1, r4
+        mv r2, r5
+        bl _rets
+        
+#---------------------------------------------------------------------
+_fcntl:
+        lw idx, [ usr, #SPTR ]
+        lw r0, 0 (idx)
+        lw r1, 4 (idx)
+        lw r2, 8 (idx)
+        addi idx, idx, 8
+        sw idx, [ usr, #SPTR ]
+
+        mov r7, _FCNT 
+        swi #0
+
+        bx lr
+        
+#---------------------------------------------------------------------
 _sbrk:
-        movs a7, _SBRK
-        movs a0, 0x0
-        j _rets
+        mov r7, _SBRK
+        mov r0, 0x0
+        bl _rets
 
         # this is where here is
-        # mov a3, a0
+        # mov r3, a0
 
         # add memory 
-        movs a7, _SBRK
-        add a0, a0, a3
+        mov r7, _SBRK
+        add r0, r0, r3
 
-        j _rets
+        bl _rets
 
-@---------------------------------------------------------------------
-_fcntl: # fd, cdm, arg
-        movs a7, _FNCT
-        movs a0, a3
-        movs a1, a4
-        movs a2, a5
-        j _rets
-        
 .endif
 */
 
