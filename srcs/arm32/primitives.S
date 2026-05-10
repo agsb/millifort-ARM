@@ -54,7 +54,7 @@
 .equ hash_DUP, 0x0B87BC84 
 .equ hash_DROP, 0x7C7F5C2C 
 .equ hash_OVER, 0x7C84398B 
-.equ hash_strAP, 0x7C8A3910 
+.equ hash_SWAP, 0x7C8A3910 
 .equ hash_ROT, 0x0B8807CC 
 .equ hash_NROT, 0x7C4E8CA1 
 
@@ -188,7 +188,7 @@ def_word "OVER", "over", hash_OVER, it_drop
 
 @---------------------------------------------------------------------
 @ ( w1 w2 -- w2 w1 ) #; over tos
-def_word "strAP", "swap", hash_SWAP, it_over
+def_word "SWAP", "swap", hash_SWAP, it_over
 
         bl look0
 
@@ -202,7 +202,7 @@ def_word "strAP", "swap", hash_SWAP, it_over
 
 @---------------------------------------------------------------------
 @ ( w1 w2 w3 -- w2 w3 w1 ) #; rot tos
-def_word "ROT", "rot", hash_ROT, it_strap
+def_word "ROT", "rot", hash_ROT, it_swap
 
         bl look0
 
@@ -524,8 +524,7 @@ def_word "CELL", "cell", hash_CELL, it_false
 @ ( -- w ; w -- ) #; constant
 def_word "RP0", "rpzo", hash_RPZO, it_cell
 
-@ zzzzz
-        @ldr fst, #_rp0
+        ldr fst, =_rp0
 
         bl push1
 
@@ -533,8 +532,7 @@ def_word "RP0", "rpzo", hash_RPZO, it_cell
 @ ( -- w ; w -- ) #; constant
 def_word "SP0", "spzo", hash_SPZO, it_rpzo
 
-@ zzzzz
-        @ldr fst, #_sp0
+        ldr fst, =_sp0
 
         bl push1
 
@@ -582,9 +580,10 @@ def_word "CEIL", "ceil", hash_CEIL, it_peek
 @ ( w1 w2 -- w3 w4 ) double multiply,  
 def_word "M*", "bymul", hash_BYMUL, it_ceil
         
+@ ZZZZZZ
         bl pull2
-        umull hsh, lnk, fst, snd
-
+        @umull hsh, lnk, fst, snd
+        
 push2:
         str hsh, [ trd, #0 ]
         mov fst, lnk
@@ -593,16 +592,15 @@ push2:
 @---------------------------------------------------------------------
 @ ( w1 w2 -- w3 w4 ) divide
 def_word "/MOD", "bymod", hash_BYMOD, it_bymul
-        
+
+@ ZZZZZZ
         bl pull2
+
         cmp fst, #0
 	beq =by_zero
 
         @udiv lnk, fst, snd
-        bl __aeabi_uidiv  
-
         @msub snd, fst, snd
-        bl __aeabi_umsub  
 
 	bl push2
 
@@ -612,7 +610,7 @@ def_word "PERFORM", "perform", hash_PERFORM, it_bymod
 
         bl pull2
 
-        bl fst
+        blx fst
 
         bl next
         

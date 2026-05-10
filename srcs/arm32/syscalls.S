@@ -19,102 +19,114 @@
 #----------------------------------------------------------------------
 */
 
-/*
- Copyright (c) 2025, Alvaro Gomes Sobral Barcellos
- 
- All rights reserved.
- 
- see the disclaimer file in this repository.
-
-*/
-
-
-/*
 #---------------------------------------------------------------------
-
- Note: 
- on arm64, armv8 linux syscalls use:
-        syscal nr in X8, return X0, and parameters 
-        X0 file descriptor
-        X1 char * buffer
-        X2 count
-        X8 read (63) or write (64)
-        
-        Use for Cortex-M0, Armv6-M, RP2040 is little-endian
-
-        R0-R12, generic use
-        
-        R13, SP stack pointer
-        R14, LR link register
-        R15, PC program pointer
-        
-        PSR, Program Status Register, 
-             bits 31 N, 30 Z, 29 C, 28 V
-
-        For milliforth is using r0-r6, r10, r11
-
-*/
+#
+# Note: system swi #0s do not use ra 
+#
 
 #---------------------------------------------------------------------
-# linux ecall stuff, 29/07/2025, vide:
+# linux swi #0 stuff, 29/07/2025, vide:
 # https://github.com/riscv-software-src/riscv-pk/blob/master/pk/syscall.h
+# https://gpages.juszkiewicz.com.pl/syscalls-table/syscalls.html
 
 .equ _ZERO,      0
 .equ _ONE,       1
 .equ _STDIN,     0
 .equ _STDOUT,    1
+
 .equ _GETC,     63
 .equ _PUTC,     64
 .equ _EXIT,     93
 
 #---------------------------------------------------------------------
-.section .bss
+.section .data
 _char:
-.word   0x0
+        .word   0x0
 
 #---------------------------------------------------------------------
 .section .text
 
-# linux ecall for exit
+# load system call for exit
 _exit:
-        ldr r0, _ZERO
-        ldr r8, _EXIT
-        svc #0
+        mov r7, #_EXIT
+        mov r0, #_ZERO
+        swi #0
 
 # load system call for init
 _init:
+        
         bx lr
 
-# linux ecall for getc
+# linux swi #0 for getc
 _getc:
-        ldr r0, _STDIN
-        adr r1, _char
-        ldr r2, _ONE
-        ldr r8, _GETC
-        svc #0
+        mov r7, #_GETC
+        mov r0, #_STDIN
+        ldr r1, =_char
+        mov r2, #_ONE
+        swi #0
+        strb r3, [ a1, #0 ]
+        
         #EOF?
+
         cmp r0, #0
         beq _exit
-        ldrb r3, (a0)
+
+.ifndef echoo
+
         bx lr
 
-# linux ecall for putc
+.endif
+
+# linux swi #0 for putc
 _putc:
-        ldr r0, _STDOUT
-        adr r1, _char
-        ldr r2, _ONE
-        ldr r8, _PUTC
-        strb r3, (x0)
-        svc #0
+        mov r7, #_PUTC
+        mov r0, #_STDOUT
+        ldr r1, =_char
+        mov r2, #_ONE
+        ldrb r3, [ a1, #0 ]
+
+_rets:
+        swi #0
         bx lr
+
+/*
+
+.ifdef extras
+
+.equ _MMAP,     192
+.equ _SBRK,     45
+.equ _FCNT,     55
 
 #---------------------------------------------------------------------
+_fcntl: # fd, cdm, arg
+        mov r7, _FCNT 
+        mov r0, r3
+        mov r1, r4
+        mov r2, r5
+        bl _rets
+        
+#---------------------------------------------------------------------
+_fcntls:
+        ldr idx, [ usr, #SPTR ]
+        ldr r0, [ idx, #0 ]
+        ldr r1, [ idx, #CELL ]
+        ldr r2, [ idx, #(CELL+CELL) ]
+        add idx, idx, #(CELL+CELL)
+        sw idx, [ usr, #SPTR ]
+        mov r7, _FCNT 
+        bl _rets
+        
+#---------------------------------------------------------------------
+_sbrkq:
+        mov r7, #_SBRK
+        mov r0, #0x0
+        swi #0
+        # add memory 
+        mov r7, #_SBRK
+        add r0, r0, r3
+        bl _rets
 
-.equ CELL, 4
-    #ldr idx, RPTR (usr)
-       
-    adds r3, #-1*CELL
+.endif
 
-    #str ipt, 0 (idx)
+*/
 
-    #str idx, RPTR (usr)

@@ -121,7 +121,7 @@
 
 .equ extras, YES
 
-.equ primitives, YES
+@.equ primitives, YES
 
 @.equ tools, YES
 

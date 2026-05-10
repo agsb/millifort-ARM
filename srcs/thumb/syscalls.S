@@ -34,12 +34,9 @@
 .equ _STDIN,     0
 .equ _STDOUT,    1
 
-.equ _SBRK,     45
-.equ _FCNT,     55
 .equ _GETC,     63
 .equ _PUTC,     64
 .equ _EXIT,     93
-.equ _MMAP,     192
 
 #---------------------------------------------------------------------
 .section .data
@@ -95,43 +92,41 @@ _rets:
 /*
 
 .ifdef extras
+
+.equ _MMAP,     192
+.equ _SBRK,     45
+.equ _FCNT,     55
+
 #---------------------------------------------------------------------
 _fcntl: # fd, cdm, arg
         mov r7, _FCNT 
-        mv r0, r3
-        mv r1, r4
-        mv r2, r5
+        mov r0, r3
+        mov r1, r4
+        mov r2, r5
         bl _rets
         
 #---------------------------------------------------------------------
-_fcntl:
-        lw idx, [ usr, #SPTR ]
-        lw r0, 0 (idx)
-        lw r1, 4 (idx)
-        lw r2, 8 (idx)
-        addi idx, idx, 8
+_fcntls:
+        ldr idx, [ usr, #SPTR ]
+        ldr r0, [ idx, #0 ]
+        ldr r1, [ idx, #CELL ]
+        ldr r2, [ idx, #(CELL+CELL) ]
+        add idx, idx, #(CELL+CELL)
         sw idx, [ usr, #SPTR ]
-
         mov r7, _FCNT 
-        swi #0
-
-        bx lr
+        bl _rets
         
 #---------------------------------------------------------------------
-_sbrk:
-        mov r7, _SBRK
-        mov r0, 0x0
-        bl _rets
-
-        # this is where here is
-        # mov r3, a0
-
+_sbrkq:
+        mov r7, #_SBRK
+        mov r0, #0x0
+        swi #0
         # add memory 
-        mov r7, _SBRK
+        mov r7, #_SBRK
         add r0, r0, r3
-
         bl _rets
 
 .endif
+
 */
 

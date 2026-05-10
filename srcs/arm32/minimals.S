@@ -294,7 +294,7 @@ def_word ";$", "docode", hash_DOCODE, it_rshift
 
         # jump and link to there 
 
-        bl ipt
+        blx ipt
         
         # at there, save ra, do whatever, load ra,
         # end with  jalr s1, 0 (ra)
@@ -346,21 +346,19 @@ tohex:
 
         mov snd, fst
         
-        mov trd, #58
-
-        mov spc, #32
+        mov trd, #32
 
         # rolls 
 100:
-        cmp spc, #0
+        cmp trd, #0
         beq 300f
 
-        sub spc, spc, #4
+        sub trd, trd, #4
 
-        lsr fst, snd, spc
+        lsr fst, snd, trd
         and fst, fst, #15
         orr fst, fst, #48
-        cmp fst, trd
+        cmp fst, #58
         blt 200f
         add fst, fst, #7
 200:

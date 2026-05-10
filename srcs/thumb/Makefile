@@ -12,51 +12,44 @@
 
 # default
 BASE = /usr/bin/
+
 # bare-metal ?
-NAME = arm-linux-gnueabi-
-# on linux ?
 NAME = arm-none-eabi-
-
-# using local ?
-# or optional compiled
-# PASS = /opt/riscv/
-
-#ifneq ("$(wildcard $(PASS))", "")
-#	BASE = /opt/riscv/bin/
-#	NAME = riscv32-unknown-linux-gnu-
-#endif
+# on linux ?
+NAME = arm-linux-gnueabi-
 
 PASS = ${BASE}${NAME}
 
 GCC = ${PASS}gcc
 
-GCCFLAGS = -nostartfiles -nodefaultlibs -static -Oz \
-	   -march=armv6
+GCCFLAGS = -nostartfiles -nodefaultlibs \
+	-static -Oz -march=armv6 -mtune=cortex-m0 \
+	-mthumb
+
+
+	 #--ro_base=0x0 --rw_base=0x400000 --zi_base=0x405000 
+	 #--first="init.o(init)"
 	   
 LDFLAGS = 
 
 #-Wl,--stats
 #-Wl,-build-id 
 
-ASFLAGS = -Wa,-alms=$@.lst 
-
-#-Wa,-mlittle-endian 
+ASFLAGS = -Wa,-alms=$@.lst -Wa,-mlittle-endian 
 
 STRIP = ${PASS}strip
 
 OBJDUMP = ${PASS}objdump
 
-QEMU = ${BASE}qemu-riscv64
+QEMU = ${BASE}qemu-arm
 
-#QEMU = ${BASE}qemu-riscv32
-
-#QFLAGS = -nographic -smp 1 -machine virt -bios none
-
-MY = sector-armv
+QFLAGS = -nographic -smp 1 -machine virt -bios none
 
 MY = test
 
 MY = minimal
+
+MY = sector-armv6
 
 ########################################
 

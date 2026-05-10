@@ -1,0 +1,32 @@
+        
+        @https://gcc.gnu.org/legacy-ml/gcc-patches/2010-10/txt00435.txt
+ 	/* Slow version for both THUMB and older ARMs lacking umull. */
+ 	mul	xxh, yyl		/* xxh := AH*BL */
+ 	do_push	{r4, r5, r6, r7}
+ 	mul	yyh, xxl		/* yyh := AL*BH */
+ 	ldr	r4, .L_mask
+ 	lsr	r5, xxl, #16		/* r5 := (AL>>16) */
+ 	lsr	r6, yyl, #16		/* r6 := (BL>>16) */
+ 	lsr	r7, xxl, #16		/* r7 := (AL>>16) */
+ 	mul	r5, r6			/* r5 = (AL>>16) * (BL>>16) */
+ 	and	xxl, r4			/* xxl = AL & 0xffff */
+ 	and	yyl, r4			/* yyl = BL & 0xffff */
+ 	add	xxh, yyh		/* xxh = AH*BL+AL*BH */
+ 	mul	r6, xxl			/* r6 = (AL&0xffff) * (BL>>16) */
+ 	mul	r7, yyl			/* r7 = (AL>>16) * (BL&0xffff) */
+ 	add	xxh, r5
+ 	mul	xxl, yyl		/* xxl = (AL&0xffff) * (BL&0xffff) */
+ 	mov	r4, #0
+ 	adds	r6, r7			/* partial sum to result[47:16]. */
+ 	adc	r4, r4			/* carry to result[48]. */
+ 	lsr	yyh, r6, #16
+ 	lsl	r4, r4, #16
+ 	lsl	yyl, r6, #16
+ 	add	xxh, r4
+ 	adds	xxl, yyl
+ 	adc	xxh, yyh
+ 	do_pop	{r4, r5, r6, r7}
+	bx lr
+.L_mask:
+	.word	65535p
+
