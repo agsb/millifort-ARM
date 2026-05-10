@@ -1,5 +1,5 @@
 /*
-#---------------------------------------------------------------------
+@---------------------------------------------------------------------
  
   Copyright 2025 Alvaro Gomes Sobral Barcellos <@agsb>
  
@@ -16,31 +16,33 @@
   You should have received a copy of the GNU General Public License
   along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-#----------------------------------------------------------------------
+@----------------------------------------------------------------------
 */
 
-#---------------------------------------------------------------------
-# max size of dictionary 64k CELLS  
-# depends on host machine
+@---------------------------------------------------------------------
+@ max size of dictionary 64k CELLS  
+@ depends on host machine
 
 .equ RAM_LIMIT, 0x40000
 
-#---------------------------------------------------------------------
-# generics alias 
+@---------------------------------------------------------------------
+@ generics alias 
 
-# as FORTH 1983
+@ as FORTH 1983
 
 .equ FALSE, 0
 
 .equ TRUE, -1
 
-# states
+@ states
 
 .equ EXECUTE, 0
 
 .equ COMPILE, 1
 
-# usefull
+.equ POSTPONE, 2
+
+@ usefull
 
 .equ ONE, 1
 
@@ -48,118 +50,88 @@
 
 .equ CELL, 4
 
-.equ BL, 32    
+.equ BL, 32    @ blank space
 
-.equ QU, 34    
+.equ QU, 34    @ double quote
 
-# highlander, immediate flag, unique NaN 
+@ highlander, immediate flag, unique NaN 
 
-# -2147483648
+@ -2147483648
 .equ FLAG_IMM, 0x80000000
 
-# +2147483647
+@ +2147483647
 .equ MASK_IMM, 0x7FFFFFFF
 
-# Moore uses 22 deep stacks
+@ Moore uses 22 deep stacks
 
 .equ stacks, 36 
 
-# data stack
+@ data stack
 
 .equ sp_size, stacks * CELL
 
-# return stack  
+@ return stack  
 
 .equ rp_size, stacks * CELL
 
-#---------------------------------------------------------------------
-# the order must be preserved, same in source. 
+@---------------------------------------------------------------------
+@ the order must be preserved, same in source. 
 
-# user structure of internal Forth variables
+@ user structure of internal Forth variables
 
-# data stack index
+@ user parameter stack: sp rp last heap state peek ceil
+
+@ data stack index
 .equ SPTR, 0 * CELL
 
-# return stack index
+@ return stack index
 .equ RPTR, 1 * CELL 
 
-# last link cell in heap dictionary linked list
-.equ LAST, 2 * CELL
+@ next free cell in heap dictionary, aka dp
+.equ HEAP, 2 * CELL
 
-# next free cell in heap dictionary, aka dpt
-.equ HEAP, 3 * CELL
+@ last link cell in heap dictionary linked list
+.equ LAST, 3 * CELL
 
-# state flag
+@ state flag
 .equ STAT, 4 * CELL
 
-#---------------------------------------------------------------------
-# base flag
-.equ BASE, 5 * CELL
+@ last heap while compiling
+.equ PEEK, 5 * CELL
 
-#---------------------------------------------------------------------
-# reserved internals
+@ last free cell for heap dictionary  
+.equ CEIL, 6 * CELL
 
-# last heap while compiling
-.equ FAUX, 6 * CELL
+@ radix base  
+.equ BASE, 7 * CELL
 
-#---------------------------------------------------------------------
-# not initialized
+@---------------------------------------------------------------------
 
-# first absolute free cell, DICTIONARY__INIT 
-.equ HEAD, 7 * CELL
+@ leave space for temporary
 
-# last absolute free cell, RAM_LIMIT
-.equ TAIL, 8 * CELL
-
-#---------------------------------------------------------------------
-# for counters
-
-# counter of words executed by next
-.equ BEAT, 9 * CELL
-
-# counter of primitives executed 
-.equ TICK, 10 * CELL
-
-# counter of compiled executed 
-.equ TACK, 11 * CELL
-
-#---------------------------------------------------------------------
-# scratch temporary 
-
-.equ TEMP1, 12 * CELL
-
-.equ TEMP2, 13 * CELL
-
-.equ TEMP3, 14 * CELL
-
-.equ TEMP4, 15 * CELL
-
-# user parameter stack: sp rp last heap state base
-# internal: faux head tail beat tick tack
-# temporay: temp1, temp2, temp3, temp4
-
-.equ params, 16
-
-# user stack
+.equ params, (8 + 8)
 
 .equ user_size, params * CELL
 
-#---------------------------------------------------------------------
-# flags for compiler options
+@---------------------------------------------------------------------
+@ flags for compiler options
 
-/* 
+@ enable echo
+@.equ echoo, YES
 
- .equ extras, YES
+@.equ extras, YES
 
- .equ tools, YES
+@.equ primitives, YES
 
- .equ primitives, YES
+@.equ tools, YES
 
-# enable clean if try compile a missed word 
- .equ missme, YES
+@ enable clean if try compile a missed word 
+@ .equ missme, YES
 
-# enable counters of words executed
- .equ beatme, YES
+@ enable native POSTPONE (STATE=2) 
+@ .equ postpone, YES
 
-*/
+@ enable counters of words executed
+@ .equ beatme, YES
+
 

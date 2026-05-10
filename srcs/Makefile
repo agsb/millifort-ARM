@@ -23,7 +23,8 @@ PASS = ${BASE}${NAME}
 GCC = ${PASS}gcc
 
 GCCFLAGS = -nostartfiles -nodefaultlibs \
-	-static -Oz -march=armv6 -mtune=cortex-m0
+	-static -Oz -march=armv6 -mtune=cortex-m0 \
+	-mthumb
 
 
 	 #--ro_base=0x0 --rw_base=0x400000 --zi_base=0x405000 

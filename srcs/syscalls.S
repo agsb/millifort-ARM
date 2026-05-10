@@ -1,5 +1,5 @@
 /*
-#---------------------------------------------------------------------
+@---------------------------------------------------------------------
  
   Copyright 2025 Alvaro Gomes Sobral Barcellos <@agsb>
  
@@ -16,18 +16,18 @@
   You should have received a copy of the GNU General Public License
   along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-#----------------------------------------------------------------------
-*/
+@----------------------------------------------------------------------
 
-#---------------------------------------------------------------------
-#
-# Note: system ecalls do not use ra 
-#
 
-#---------------------------------------------------------------------
-# linux ecall stuff, 29/07/2025, vide:
-# https://github.com/riscv-software-src/riscv-pk/blob/master/pk/syscall.h
-# https://gpages.juszkiewicz.com.pl/syscalls-table/syscalls.html
+@---------------------------------------------------------------------
+@
+@ Note: system ecalls do not use ra 
+@
+
+@---------------------------------------------------------------------
+@ linux ecall stuff, 29/07/2025, vide:
+@ https://github.com/riscv-software-src/riscv-pk/blob/master/pk/syscall.h
+@ https://gpages.juszkiewicz.com.pl/syscalls-table/syscalls.html
 
 .equ _ZERO,      0
 .equ _ONE,       1
@@ -41,26 +41,26 @@
 .equ _EXIT,     93
 .equ _MMAP,     192
 
-#---------------------------------------------------------------------
+@---------------------------------------------------------------------
 .section .data
 _char:
         .word   0x0
 
-#---------------------------------------------------------------------
+@---------------------------------------------------------------------
 .section .text
 
-# load system call for exit
+@ load system call for exit
 _exit:
         movs r7, #_EXIT
         movs r0, #_ZERO
         svc #0
 
-# load system call for init
+@ load system call for init
 _init:
         
         bx lr
 
-# linux ecall for getc
+@ linux ecall for getc
 _getc:
         movs r7, #_GETC
         movs r0, #_STDIN
@@ -80,7 +80,7 @@ _getc:
 
 .endif
 
-# linux ecall for putc
+@ linux ecall for putc
 _putc:
         movs r7, #_PUTC
         movs r0, #_STDOUT
@@ -95,7 +95,7 @@ _rets:
 
 /*
 .ifdef extras
-#---------------------------------------------------------------------
+@---------------------------------------------------------------------
 _sbrk:
         movs a7, _SBRK
         movs a0, 0x0
@@ -110,7 +110,7 @@ _sbrk:
 
         j _rets
 
-#---------------------------------------------------------------------
+@---------------------------------------------------------------------
 _fcntl: # fd, cdm, arg
         movs a7, _FNCT
         movs a0, a3

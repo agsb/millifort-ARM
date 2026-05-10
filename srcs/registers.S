@@ -1,51 +1,48 @@
-#---------------------------------------------------------------------
-#       CPU: Cortex-M0, Armv6-M, RP2040 is little-endian
-#       for alias register names 
-#
-#       agsb@ 24/04/2026
-#
-#       svc     used in linux system calls
-#
-#---------------------------------------------------------------------
+@---------------------------------------------------------------------
+@       CPU: Cortex-M0, Armv6-M, RP2040 is little-endian
+@       for alias register names 
+@
+@       agsb@ 24/04/2026
+@
+@       svc     used in linux system calls
+@
+@---------------------------------------------------------------------
 
-# forth struct pointer, constant 
-#define usr r8
+@ forth struct pointer, constant 
+#define usr r9
 
-# instruction pointer, preserved
-#define ipt r9 
+@ instruction pointer, preserved
+#define ipt r8 
 
-# forth address pointer, preserved
+@ forth address pointer, preserved
 #define lrk r10 
 
-# forth address pointer, preserved
+@ forth address pointer, preserved
 #define nib r11 
 
-# forth address pointer, preserved
-#define bow r12 
-
-# memory index, svc 
+@ memory index, svc 
 #define idx r0 
 
-# hash value, svc
+@ hash value, svc
 #define hsh r1 
 
-# link pointer, svc
+@ link pointer, svc
 #define lnk r2 
 
-# word pointer, svc
+@ word pointer, svc
 #define wrd r3 
 
-# generic, free
+@ generic, free
 #define fst r4 
 
-# generic, free
+@ generic, free
 #define snd r5 
 
-# generic, free
+@ generic, free
 #define trd r6 
 
-# generic, svc
+@ generic, svc
 #define fth r7 
 
-#---------------------------------------------------------------------
+@---------------------------------------------------------------------
 
