@@ -190,7 +190,8 @@ def_word "0#", "zeroq", hash_zeroq, it_plus
         cmp fst, #0
         beq back1
 
-        mov fst, #TRUE
+        mov fst, #0
+        sub fst, #1
         
         bl back1
 
@@ -264,7 +265,8 @@ by_zero:
 by_under:        
 by_over:
 
-        mov fst, #0x80000
+        mov fst, #0x80
+        lsl fst, #24
         
         bl push1
 
@@ -274,7 +276,9 @@ def_word "LSHIFT", "lshift", hash_LSHIFT, it_nan
 
         bl pull2
         
-        lsl fst, snd, fst
+        lsl snd, fst
+        
+        mov fst, snd
         
         bl keep1
 
@@ -284,8 +288,10 @@ def_word "RSHIFT", "rshift", hash_RSHIFT, it_lshift
 
         bl pull2
         
-        lsr fst, snd, fst
+        lsr snd, fst
         
+        mov fst, snd
+
         bl keep1
 
 @---------------------------------------------------------------------
@@ -355,12 +361,15 @@ tohex:
 
         sub trd, trd, #4
 
-        lsr fst, snd, trd
-        and fst, fst, #15
-        orr fst, fst, #48
+        mov fst, snd
+        lsr fst, trd
+        mov hsh, #15
+        and fst, hsh
+        mov hsh, #48
+        orr fst, hsh
         cmp fst, #58
         blt 200f
-        add fst, fst, #7
+        add fst, #7
 200:
         bl _putc
         
@@ -383,6 +392,9 @@ number:
 
         mov trd, #0
 
+        mov snd, #80
+        lsl snd, #24
+
         # skip spaces 
 nskip:
         bl _getc
@@ -393,7 +405,7 @@ ndigit:
 
         bl digit
 
-        cmp fst, #0x8000000
+        cmp fst, snd
         beq nodigit
 
         lsl trd, trd, #4
@@ -449,7 +461,7 @@ digit:
 400:
 @ is_error, NaN
 
-        ldr fst, =0x80000
+        mov fst, snd
 
         bx lr 
 

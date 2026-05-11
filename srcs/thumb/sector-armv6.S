@@ -1,5 +1,4 @@
 /*
-
 @---------------------------------------------------------------------
  
   Copyright 2025 Alvaro Gomes Sobral Barcellos <@agsb>
@@ -33,7 +32,7 @@
  
     read notes in this repository.
  
-    Stacks movses backwards, decrease then push, pull then increase.
+    Stacks moves backwards, decrease then push, pull then increase.
 
     Made for a little endian RiscV, cell size of 4 bytes, 32-bit
 
@@ -44,7 +43,7 @@
 
         THIS VERSION USES STREAMS. NO TIB, NO LINES, NO CONTROLS
 
-        USE ONLY ASCII TOKENS IN MIXED CASE ands BETWEEN SPACES
+        USE ONLY ASCII TOKENS IN MIXED CASE AND BETWEEN SPACES
 
 @----------------------------------------------------------------------
 */
@@ -70,18 +69,18 @@ is_\label:
 .endm
 
 @---------------------------------------------------------------------
-@ Riscv does not have automatic, ands hidden, SP push/pull
-@ for two level nested calls, use save_lr ands load_ra
+@ Riscv does not have automatic, and hidden, SP push/pull
+@ for two level nested calls, use save_lr and load_ra
 @ ever use as macro
 
 @ one deep
 
 .macro  save_lr
-        movs r11, lr
+        mov r11, lr
 .endm
 
 .macro  load_lr
-        movs lr, r11
+        mov lr, r11
 .endm
 
 @----------------------------------------------------------------------
@@ -96,7 +95,7 @@ is_\label:
 .section .bss
 .p2align 4, 0x0
 
-@ all forth variables ands stacks by offset of _user
+@ all forth variables and stacks by offset of _user
 
 @ user stack of parameter, vide defines.S
 _user:
@@ -208,7 +207,7 @@ miss:
         @# wipe remains, reclaims space.
         ldr fst, [usr, #PEEK]
         str fst, [usr, #HEAP]
-        movs fst, #EXECUTE
+        mov fst, #EXECUTE
         str fst, [usr, #STAT]
 100:
 .endif
@@ -230,7 +229,7 @@ quit:
 @---------------------------------------------------------------------
 @ stat is 'interpret' == \0
         
-        movs fst, #EXECUTE
+        mov fst, #EXECUTE
         str fst, [usr, #STAT]
 
 @---------------------------------------------------------------------
@@ -277,7 +276,7 @@ find:
 
         @# linked list
         
-        movs fst, lnk
+        mov fst, lnk
 
         @# copy next link 
         
@@ -285,17 +284,17 @@ find:
 
         @# copy the hash
         
-        adds fst, fst, #CELL
+        add fst, fst, #CELL
 
         ldr hsh, [fst, #0]
 
         @# mask the FLAG, hold it in snd
 
-        movs snd, #FLAG_IMM
+        ldr snd, =FLAG_IMM
 
-        ands snd, hsh, snd
+        and snd, hsh, snd
 
-        eors hsh, hsh, snd
+        eor hsh, hsh, snd
 
         @# compare trd equ hash
         
@@ -304,7 +303,7 @@ find:
 
         @# points to code or list, aka xt
 
-        adds fst, fst, #CELL
+        add fst, fst, #CELL
 
 @---------------------------------------------------------------------         
 @ snd have the flag
@@ -316,10 +315,10 @@ eval:
         
 @ XXX
 .ifdef postpone
-        movs lnk, #POSTPONE
+        mov lnk, #POSTPONE
         cmp wrd, lnk
         bne 100f
-        movs lnk, #COMPILE
+        mov lnk, #COMPILE
         str lnk, [usr, #STAT]
         bl compile
 100:
@@ -380,13 +379,13 @@ skip:
         @# djb2 hash function
 hash:        
 
-        movs snd, trd
+        mov snd, trd
 
-        lsls trd, trd, #SFHT
+        lsl trd, trd, #SFHT
         
-        adds trd, trd, snd
+        add trd, trd, snd
         
-        eors trd, trd, fst
+        eor trd, trd, fst
         
         @# scan spaces
 scan:
@@ -400,9 +399,9 @@ scan:
         @# clear hash high bit 
 mask:
 
-        lsls trd, trd, #ONE
+        lsl trd, trd, #ONE
 
-        lsrs trd, trd, #ONE
+        lsr trd, trd, #ONE
 
         load_lr
 
@@ -415,7 +414,7 @@ comma:
       
         str fst, [trd, #0]
       
-        adds trd, trd, #CELL
+        add trd, trd, #CELL
       
         str trd, [usr, #HEAP]
 
@@ -449,7 +448,7 @@ unnest:
         
         ldr ipt, [trd, #0]
         
-        adds trd, trd, #CELL
+        add trd, trd, #CELL
         
         str trd, [usr, #RPTR]
 
@@ -457,12 +456,12 @@ unnest:
 next:
 @ xxx
 .ifdef beatme
-        adds t0, t0, 1
+        add t0, t0, 1
 .endif
 
         ldr fst, [ipt, #0]
         
-        adds ipt, ipt, #CELL
+        add ipt, ipt, #CELL
 
 @ compare address, if is a primitive then jumps, MITC 
 pick:
@@ -475,31 +474,31 @@ pick:
 jump: 
 @ xxx
 .ifdef beatme
-        adds t1, t1, 1
+        add t1, t1, 1
 .endif
 
-        @# really jump ands link 
+        @# really jump and link 
         blx fst
 
 @ return push
 nest:   
 @ xxx
 .ifdef beatme
-        adds t2, t2, 1
+        add t2, t2, 1
 .endif
 
         ldr trd, [usr, #RPTR]
         
-        subs trd, trd, #CELL
+        sub trd, trd, #CELL
         
         str ipt, [trd, #0]
         
         str trd, [usr, #RPTR]
 
-movse: 
+move: 
 @ resolve indirect thread
         
-        movs ipt, fst
+        mov ipt, fst
         
         bl next
 

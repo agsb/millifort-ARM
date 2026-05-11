@@ -62,12 +62,15 @@
 
 @ proposal 
 
-.arch armv6-m
+# use v6s to include svc/swi
+.arch armv6s-m
+
+.thumb
+
 .cpu cortex-m0
 
 @.cpu cortex-m0plus
 
-.thumb
 
 @.syntax unified
 
@@ -95,10 +98,10 @@
 #define usr r6
 
 @ instruction pointer, preserved, svc
-@ #define ipt r7 
+#define ipt r7 
 
 @ instruction pointer, preserved
-#define ipt r8 
+@#define ipt r8 
 
 @---------------------------------------------------------------------
 
